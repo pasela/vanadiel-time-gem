@@ -62,23 +62,31 @@ module Vanadiel
     MOON_BASE_TIME  = 0 - (ONE_DAY * 12) #=> New moon
 
     def initialize(time = nil)
-      if time.is_a? Vanadiel::Time
-        @time = time.to_f
-      elsif time.is_a? ::Time
+      time = ::Time.now if time.nil?
+
+      if time.is_a? ::Time
         @time = self.class.earth_to_vana(time.to_f * ONE_SECOND)
+      elsif time.is_a?(Vanadiel::Time) || time.is_a?(Integer) || time.is_a?(Float)
+        @time = time.to_f
       else
-        @time = 0
+        raise ArgumentError, 'Invalid argument'
       end
+    end
+
+    # Make current Vana'diel time
+    def self.now
+      self.new
     end
 
     # Make Vana'diel time
     def self.mktime(year, mon = 1, day = 1, hour = 0, min = 0, sec = 0)
       time = ((year - 1) * ONE_YEAR) + ((mon - 1) * ONE_MONTH) + ((day - 1) * ONE_DAY) + (hour * ONE_HOUR) + (min * ONE_MINUTE) + (sec * ONE_SECOND)
-      earth = self.vana_to_earth(time) / ONE_SECOND
-      #t, u = earth.to_s.split('.')
-      t = earth.floor
-      u = (earth - t) * ONE_SECOND
-      self.new(::Time.at(t, u))
+      self.new(time)
+      # earth = self.vana_to_earth(time) / ONE_SECOND
+      # #t, u = earth.to_s.split('.')
+      # t = earth.floor
+      # u = (earth - t) * ONE_SECOND
+      # self.new(::Time.at(t, u))
     end
 
     # Vana'diel time(usec) to Earth time(UNIX usec)
@@ -89,6 +97,10 @@ module Vanadiel
     # Earth time(UNIX usec) to Vana'diel time(usec)
     def self.earth_to_vana(earth_time)
       (earth_time + DIFF_TIME) * VANA_TIME_SCALE - ONE_YEAR
+    end
+
+    def to_f
+      @time
     end
 
     def to_earth_time
