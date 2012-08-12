@@ -1,15 +1,17 @@
 = vanadiel
 
-* {Homepage}[https://github.com/pasela/vanadiel#readme]
-* {Issues}[https://github.com/pasela/vanadiel/issues]
+* {Homepage}[https://github.com/pasela/vanadiel-gem]
+* {Issues}[https://github.com/pasela/vanadiel-gem/issues]
 * {Documentation}[http://rubydoc.info/gems/vanadiel/frames]
 * {Email}[mailto:paselan at gmail.com]
 
 == Description
 
-TODO: Description
+A library for dealing with staff from Final Fantasy XI.
 
 == Features
+
+Converting between realtime and vana'diel time, and so on.
 
 == Examples
 
