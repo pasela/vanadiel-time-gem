@@ -102,6 +102,11 @@ module Vanadiel
       ::Time.at(self.class.vana_to_earth(@time) / ONE_SECOND)
     end
 
+    def hash; @time.hash ^ self.class.hash; end
+
+    def ==(other);   @time == other.to_f;      end
+    def eql?(other); self.hash == other.hash; end
+
     def time=(time)
       @time = time
       compute_fields

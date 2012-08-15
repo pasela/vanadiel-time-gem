@@ -194,5 +194,25 @@ end
 #   include_context 'Vanadiel::Time with arguments(2047, 10, 21, 15, 37, 30, 123456)'
 #   subject { vana_time.to_s }
 #   it { should be_kind_of String }
-#   it { should === '2047-10-21 15:37:30' }
+#   it { should == '2047-10-21 15:37:30' }
 # end
+
+describe Vanadiel::Time, '#==' do
+  context 'with same value different object' do
+    let(:other) { described_class.new(2047, 10, 21) }
+    subject     { described_class.new(2047, 10, 21) }
+    it 'should be true' do
+      should == other
+    end
+  end
+end
+
+describe Vanadiel::Time, '#eql?' do
+  context 'with same value different object' do
+    let(:other) { described_class.new(2047, 10, 21) }
+    subject     { described_class.new(2047, 10, 21) }
+    it 'should be true' do
+      should eql other
+    end
+  end
+end
