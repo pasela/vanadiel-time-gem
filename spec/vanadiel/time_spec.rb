@@ -27,7 +27,7 @@ share_examples_for 'Vanadiel::Time with no argument' do
   end
 
   it "should create current time object" do
-    subject.to_earth_time.to_f.should == @time_now.to_f
+    subject.to_earth_time.to_f.round(6).should == @time_now.to_f.round(6)
   end
 end
 
@@ -107,21 +107,21 @@ describe Vanadiel::Time, '.at' do
   context 'with argument Vanadiel::Time' do
     subject { Vanadiel::Time.at(@vana_time) }
     it "should create Vana'diel time with passed time" do
-      subject.to_f.should == @vana_time.to_f
+      subject.to_f.round(6).should == @vana_time.to_f.round(6)
     end
   end
 
   context 'with argument Time' do
     subject { Vanadiel::Time.at(@earth_time) }
     it "should create Vana'diel time with passed time" do
-      subject.to_earth_time.to_f.should == @earth_time.to_f
+      subject.to_earth_time.to_f.round(6).should == @earth_time.to_f.round(6)
     end
   end
 
   context 'with argument Float' do
     subject { Vanadiel::Time.at(@vana_time.to_f) }
     it "should create Vana'diel time with passed time as Vana'diel time" do
-      subject.to_f.should == @vana_time.to_f
+      subject.to_f.round(6).should == @vana_time.to_f.round(6)
     end
   end
 
@@ -161,3 +161,28 @@ describe 'Vanadiel::Time properties' do
     it_should_behave_like "time object which has each part property"
   end
 end
+
+shared_context 'Vanadiel::Time with arguments(2047, 10, 21, 15, 37, 30, 123456)' do
+  let(:vana_time) { Vanadiel::Time.new(2047, 10, 21, 15, 37, 30, 123456) }
+end
+
+describe Vanadiel::Time, '#to_i' do
+  include_context 'Vanadiel::Time with arguments(2047, 10, 21, 15, 37, 30, 123456)'
+  subject { vana_time.to_i }
+  it { should be_kind_of Integer }
+  it { should === 63663896250123456 }
+end
+
+describe Vanadiel::Time, '#to_f' do
+  include_context 'Vanadiel::Time with arguments(2047, 10, 21, 15, 37, 30, 123456)'
+  subject { vana_time.to_f }
+  it { should be_kind_of Float }
+  it { should === 63663896250123456.0 }
+end
+
+# describe Vanadiel::Time, '#to_s' do
+#   include_context 'Vanadiel::Time with arguments(2047, 10, 21, 15, 37, 30, 123456)'
+#   subject { vana_time.to_s }
+#   it { should be_kind_of String }
+#   it { should === '2047-10-21 15:37:30' }
+# end

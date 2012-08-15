@@ -1,5 +1,8 @@
 # encoding: utf-8
 
+require 'vanadiel/week'
+require 'vanadiel/moon'
+
 # A.D. -91270800 => 1967/02/10 00:00:00 +0900
 # C.E. 0         => 0001/01/01 00:00:00
 #
@@ -13,38 +16,6 @@
 # C.E. 2047/10/21(Win) 15:37:30
 module Vanadiel
   class Time
-    # Weekdays
-    FIRE      = 0
-    EARTH     = 1
-    WATER     = 2
-    WIND      = 3
-    ICE       = 4
-    LIGHTNING = 5
-    LIGHT     = 6
-    DARK      = 7
-
-    # Moon age
-    NEW_MOON           = 0  # 新月
-    CRESCENT_MOON      = 1  # 三日月
-    WAXING_CRESCENT1   = 1  # 三日月
-    SIX_AGE_MOON       = 2  # 七日月
-    WAXING_CRESCENT2   = 2  # 七日月
-    FIRST_QUARTER      = 3  # 上弦の月
-    NINE_AGE_MOON      = 4  # 十日夜
-    WAXING_GIBBOUS1    = 4  # 十日夜
-    GIBBOUS_MOON       = 5  # 十三夜
-    WAXING_GIBBOUS2    = 5  # 十三夜
-    FULL_MOON          = 6  # 満月
-    FIFTEEN_AGE_MOON   = 7  # 十六夜
-    WANING_GIBBOUS1    = 7  # 十六夜
-    DISSEMINATING_MOON = 8  # 居待月
-    WANING_GIBBOUS2    = 8  # 居待月
-    LAST_QUARTER       = 9  # 下弦の月
-    TWENTY_AGE_MOON    = 10 # 二十日余月
-    WANING_CRESCENT1   = 10 # 二十日余月
-    BALSAMIC_MOON      = 11 # 二十六夜
-    WANING_CRESCENT2   = 11 # 二十六夜
-
     # Convenient constants for time calculation
     ONE_SECOND = 1000000.0
     ONE_MINUTE = 60  * ONE_SECOND
@@ -78,12 +49,18 @@ module Vanadiel
 
     # Create current Vana'diel time
     def initialize(*args)
-      self.time = args.empty? ? self.class.earth_to_vana(::Time.now.to_f * ONE_SECOND) : self.class.ymdhms_to_f(*args)
+      self.time = args.empty? ? self.class.earth_to_vana(::Time.now.to_f * ONE_SECOND) : self.class.ymdhms_to_time(*args)
     end
 
     # Create current Vana'diel time
     def self.now
       self.new
+    end
+
+    # Same as .new() but year is required
+    def self.mktime(*args)
+      raise ArgumentError, 'wrong number arguments' if args.empty?
+      self.new(*args)
     end
 
     # Create specified Vana'diel time
@@ -99,12 +76,6 @@ module Vanadiel
       obj
     end
 
-    # Same as .new() but year is required
-    def self.mktime(*args)
-      raise ArgumentError, 'wrong number arguments' if args.empty?
-      self.new(*args)
-    end
-
     # Vana'diel time(usec) to Earth time(UNIX usec)
     def self.vana_to_earth(vana_time)
        earth = (((vana_time + ONE_YEAR) / VANA_TIME_SCALE) - DIFF_TIME)
@@ -115,6 +86,10 @@ module Vanadiel
       (earth_time + DIFF_TIME) * VANA_TIME_SCALE - ONE_YEAR
     end
 
+    def to_i
+      @time.to_i
+    end
+
     def to_f
       @time
     end
@@ -123,16 +98,12 @@ module Vanadiel
       ::Time.at(self.class.vana_to_earth(@time) / ONE_SECOND)
     end
 
-    public
-
     def time=(time)
       @time = time
       compute_fields
     end
 
-    private
-
-    def self.ymdhms_to_f(year, mon = 1, day = 1, hour = 0, min = 0, sec = 0, usec = 0)
+    def self.ymdhms_to_time(year, mon = 1, day = 1, hour = 0, min = 0, sec = 0, usec = 0)
       raise ArgumentError, 'year out of range' if year < 0
       raise ArgumentError, 'mon out of range'  if mon  < 1 || mon > MAX_MONTH
       raise ArgumentError, 'day out of range'  if day  < 1 || day > MAX_MDAY
@@ -142,6 +113,8 @@ module Vanadiel
       raise ArgumentError, 'usec out of range' if usec < 0 || usec > 999999
       ((year - 1) * ONE_YEAR) + ((mon - 1) * ONE_MONTH) + ((day - 1) * ONE_DAY) + (hour * ONE_HOUR) + (min * ONE_MINUTE) + (sec * ONE_SECOND) + usec
     end
+
+    private
 
     def compute_fields
       @year         = (@time / ONE_YEAR).floor + 1
