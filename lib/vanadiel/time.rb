@@ -86,13 +86,17 @@ module Vanadiel
       (earth_time + DIFF_TIME) * VANA_TIME_SCALE - ONE_YEAR
     end
 
-    def to_i
-      @time.to_i
-    end
+    def fire?;      @wday == Vanadiel::Week::FIRE;      end
+    def earth?;     @wday == Vanadiel::Week::EARTH;     end
+    def water?;     @wday == Vanadiel::Week::WATER;     end
+    def wind?;      @wday == Vanadiel::Week::WIND;      end
+    def ice?;       @wday == Vanadiel::Week::ICE;       end
+    def lightning?; @wday == Vanadiel::Week::LIGHTNING; end
+    def light?;     @wday == Vanadiel::Week::LIGHT;     end
+    def dark?;      @wday == Vanadiel::Week::DARK;      end
 
-    def to_f
-      @time
-    end
+    def to_i; @time.to_i; end
+    def to_f; @time;      end
 
     def to_earth_time
       ::Time.at(self.class.vana_to_earth(@time) / ONE_SECOND)

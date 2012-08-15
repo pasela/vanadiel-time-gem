@@ -31,7 +31,7 @@ share_examples_for 'Vanadiel::Time with no argument' do
   end
 end
 
-shared_examples_for 'YMDHMS constructor' do
+shared_examples 'YMDHMS constructor' do |ctor|
   # A.D. 1967/02/10 00:00:00 JST
   # C.E. 0001/01/01 00:00:00
   context 'with arguments (1, 1, 1, 0, 0, 0)' do
@@ -70,8 +70,7 @@ shared_examples_for 'YMDHMS constructor' do
 end
 
 describe Vanadiel::Time, '.new' do
-  let(:ctor) { :new }
-  it_should_behave_like 'YMDHMS constructor'
+  include_examples 'YMDHMS constructor', :new
 
   context 'with no argument' do
     subject { Vanadiel::Time.new }
@@ -87,8 +86,7 @@ describe Vanadiel::Time, '.now' do
 end
 
 describe Vanadiel::Time, '.mktime' do
-  let(:ctor) { :mktime }
-  it_should_behave_like 'YMDHMS constructor'
+  include_examples 'YMDHMS constructor', :mktime
 
   context 'with no argument' do
     subject { Vanadiel::Time.new }
@@ -164,6 +162,18 @@ end
 
 shared_context 'Vanadiel::Time with arguments(2047, 10, 21, 15, 37, 30, 123456)' do
   let(:vana_time) { Vanadiel::Time.new(2047, 10, 21, 15, 37, 30, 123456) }
+end
+
+describe Vanadiel::Time, '#fire? with 1000-01-01' do
+  subject { Vanadiel::Time.new(1000, 1, 1) }
+  it { should be_fire }
+  it { should_not be_earth }
+  it { should_not be_water }
+  it { should_not be_wind }
+  it { should_not be_ice }
+  it { should_not be_lightning }
+  it { should_not be_light }
+  it { should_not be_dark }
 end
 
 describe Vanadiel::Time, '#to_i' do
