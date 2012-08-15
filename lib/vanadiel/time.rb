@@ -54,6 +54,13 @@ module Vanadiel
     ONE_MONTH  = 30  * ONE_DAY
     ONE_YEAR   = 360 * ONE_DAY
 
+    # Max values
+    MAX_MDAY     = 30   # 1-origin
+    MAX_MONTH    = 12   # 1-origin
+    MAX_WDAY     = 7    # 0-origin
+    MAX_YDAY     = 360  # 1-origin
+    MAX_MOON_AGE = 11   # 0-origin
+
     VANA_TIME_SCALE = 25
     VANA_BASE_YEAR  = 886
     VANA_BASE_TIME  = (VANA_BASE_YEAR * ONE_YEAR) / VANA_TIME_SCALE
@@ -61,32 +68,41 @@ module Vanadiel
     DIFF_TIME       = VANA_BASE_TIME - EARTH_BASE_TIME
     MOON_BASE_TIME  = 0 - (ONE_DAY * 12) #=> New moon
 
-    def initialize(time = nil)
-      time = ::Time.now if time.nil?
+    attr_reader :year, :month, :mday, :hour, :min, :sec, :usec
+    alias_method :mon, :month
+    alias_method :day, :mday
+    attr_reader :wday         # Days since Fire
+    attr_reader :yday         # Days since 1/1
+    attr_reader :moon_age     # Moon age
+    attr_reader :time_of_moon # Time after the moon
 
-      if time.is_a? ::Time
-        @time = self.class.earth_to_vana(time.to_f * ONE_SECOND)
-      elsif time.is_a?(Vanadiel::Time) || time.is_a?(Integer) || time.is_a?(Float)
-        @time = time.to_f
-      else
-        raise ArgumentError, 'Invalid argument'
-      end
+    # Create current Vana'diel time
+    def initialize(*args)
+      self.time = args.empty? ? self.class.earth_to_vana(::Time.now.to_f * ONE_SECOND) : self.class.ymdhms_to_f(*args)
     end
 
-    # Make current Vana'diel time
+    # Create current Vana'diel time
     def self.now
       self.new
     end
 
-    # Make Vana'diel time
-    def self.mktime(year, mon = 1, day = 1, hour = 0, min = 0, sec = 0)
-      time = ((year - 1) * ONE_YEAR) + ((mon - 1) * ONE_MONTH) + ((day - 1) * ONE_DAY) + (hour * ONE_HOUR) + (min * ONE_MINUTE) + (sec * ONE_SECOND)
-      self.new(time)
-      # earth = self.vana_to_earth(time) / ONE_SECOND
-      # #t, u = earth.to_s.split('.')
-      # t = earth.floor
-      # u = (earth - t) * ONE_SECOND
-      # self.new(::Time.at(t, u))
+    # Create specified Vana'diel time
+    def self.at(time)
+      obj = self.new
+      if time.is_a? ::Time
+        obj.time = self.earth_to_vana(time.to_f * ONE_SECOND)
+      elsif time.is_a?(Vanadiel::Time) || time.is_a?(Integer) || time.is_a?(Float)
+        obj.time = time.to_f
+      else
+        raise ArgumentError, 'invalid argument'
+      end
+      obj
+    end
+
+    # Same as .new() but year is required
+    def self.mktime(*args)
+      raise ArgumentError, 'wrong number arguments' if args.empty?
+      self.new(*args)
     end
 
     # Vana'diel time(usec) to Earth time(UNIX usec)
@@ -105,6 +121,47 @@ module Vanadiel
 
     def to_earth_time
       ::Time.at(self.class.vana_to_earth(@time) / ONE_SECOND)
+    end
+
+    public
+
+    def time=(time)
+      @time = time
+      compute_fields
+    end
+
+    private
+
+    def self.ymdhms_to_f(year, mon = 1, day = 1, hour = 0, min = 0, sec = 0, usec = 0)
+      raise ArgumentError, 'year out of range' if year < 0
+      raise ArgumentError, 'mon out of range'  if mon  < 1 || mon > MAX_MONTH
+      raise ArgumentError, 'day out of range'  if day  < 1 || day > MAX_MDAY
+      raise ArgumentError, 'hour out of range' if hour < 0 || hour > 23
+      raise ArgumentError, 'min out of range'  if min  < 0 || min > 59
+      raise ArgumentError, 'sec out of range'  if sec  < 0 || sec > 59
+      raise ArgumentError, 'usec out of range' if usec < 0 || usec > 999999
+      ((year - 1) * ONE_YEAR) + ((mon - 1) * ONE_MONTH) + ((day - 1) * ONE_DAY) + (hour * ONE_HOUR) + (min * ONE_MINUTE) + (sec * ONE_SECOND) + usec
+    end
+
+    def compute_fields
+      @year         = (@time / ONE_YEAR).floor + 1
+      @month        = (@time % ONE_YEAR / ONE_MONTH).floor + 1
+      @mday         = (@time % ONE_MONTH / ONE_DAY).floor + 1
+      @hour         = (@time % ONE_DAY / ONE_HOUR).floor
+      @min          = (@time % ONE_HOUR / ONE_MINUTE).floor
+      @sec          = (@time % ONE_MINUTE / ONE_SECOND).floor
+      @usec         = (@time % ONE_SECOND).floor
+
+      @wday         = (@time % ONE_WEEK / ONE_DAY).floor
+      @yday         = (@month * 30) + @mday - 1
+
+      moon_time     = @time - MOON_BASE_TIME
+      @moon_age     = (moon_time / ONE_DAY / 7 % (MAX_MOON_AGE + 1)).floor
+      @time_of_moon = ((moon_time / ONE_DAY % 7) * ONE_DAY).floor
+                    + (@hour * ONE_HOUR)
+                    + (@min * ONE_MINUTE)
+                    + (@sec * ONE_SECOND)
+                    + (@usec)
     end
   end
 end
