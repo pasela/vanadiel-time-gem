@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-require 'vanadiel/week'
+require 'vanadiel/day'
 require 'vanadiel/moon'
 
 # A.D. -91270800 => 1967/02/10 00:00:00 +0900
@@ -86,14 +86,134 @@ module Vanadiel
       (earth_time + DIFF_TIME) * VANA_TIME_SCALE - ONE_YEAR
     end
 
-    def fire?;      @wday == Vanadiel::Week::FIRE;      end
-    def earth?;     @wday == Vanadiel::Week::EARTH;     end
-    def water?;     @wday == Vanadiel::Week::WATER;     end
-    def wind?;      @wday == Vanadiel::Week::WIND;      end
-    def ice?;       @wday == Vanadiel::Week::ICE;       end
-    def lightning?; @wday == Vanadiel::Week::LIGHTNING; end
-    def light?;     @wday == Vanadiel::Week::LIGHT;     end
-    def dark?;      @wday == Vanadiel::Week::DARK;      end
+    def fire?;      @wday == Vanadiel::Day::FIRE;      end
+    def earth?;     @wday == Vanadiel::Day::EARTH;     end
+    def water?;     @wday == Vanadiel::Day::WATER;     end
+    def wind?;      @wday == Vanadiel::Day::WIND;      end
+    def ice?;       @wday == Vanadiel::Day::ICE;       end
+    def lightning?; @wday == Vanadiel::Day::LIGHTNING; end
+    def light?;     @wday == Vanadiel::Day::LIGHT;     end
+    def dark?;      @wday == Vanadiel::Day::DARK;      end
+
+    # Format Vana'diel time according to the directives in the format string.
+    # The directives begins with a percent (%) character. Any text not listed
+    # as a directive will be passed through to the output string.
+    #
+    # The directive consists of a percent (%) character, zero or more flags,
+    # optional minimum field width and a conversion specifier as follows.
+    #
+    #   %<flags><width><conversion>
+    #
+    # Flags:
+    #   -  don't pad a numerical output.
+    #   _  use spaces for padding.
+    #   0  use zeros for padding.
+    #   ^  upcase the result string.
+    #   #  change case.
+    #
+    # The minimum field width specifies the minimum width.
+    #
+    # Format directives:
+    #   Date (Year, Month, Day):
+    #     %Y - Year with century (can be negative)
+    #             -0001, 0000, 1995, 2009, 14292, etc.
+    #     %C - year / 100 (round down.  20 in 2009)
+    #     %y - year % 100 (00..99)
+    #
+    #     %m - Month of the year, zero-padded (01..12)
+    #             %_m  blank-padded ( 1..12)
+    #             %-m  no-padded (1..12)
+    #
+    #     %d - Day of the month, zero-padded (01..30)
+    #             %-d  no-padded (1..30)
+    #     %e - Day of the month, blank-padded ( 1..30)
+    #
+    #     %j - Day of the year (001..360)
+    #
+    #   Time (Hour, Minute, Second, Subsecond):
+    #     %H - Hour of the day, 24-hour clock, zero-padded (00..23)
+    #     %k - Hour of the day, 24-hour clock, blank-padded ( 0..23)
+    #
+    #     %M - Minute of the hour (00..59)
+    #
+    #     %S - Second of the minute (00..59)
+    #
+    #     %L - Millisecond of the second (000..999)
+    #     %N - Fractional seconds digits, default is 6 digits (microsecond)
+    #             %3N  millisecond (3 digits)
+    #             %6N  microsecond (6 digits)
+    #
+    #   Weekday:
+    #     %A - The full weekday name (``Firesday'')
+    #             %^A  uppercased (``FIRESDAY'')
+    #     %w - Day of the week (Firesday is 0, 0..7)
+    #
+    #   Seconds since the Epoch:
+    #     %s - Number of seconds since 0001-01-01 00:00:00
+    #
+    #   Literal string:
+    #     %n - Newline character (\n)
+    #     %t - Tab character (\t)
+    #     %% - Literal ``%'' character
+    #
+    #   Combination:
+    #     %F - The ISO 8601 date format (%Y-%m-%d)
+    #     %X - Same as %T
+    #     %R - 24-hour time (%H:%M)
+    #     %T - 24-hour time (%H:%M:%S)
+    def strftime(format)
+      source = { 'Y' => @year,  'C' => @year / 100, 'y' => @year % 100,
+                 'm' => @month, 'd' => @mday, 'e' => @mday, 'j' => @yday,
+                 'H' => @hour,  'k' => @hour, 'M' => @min,  'S' => @sec, 'L' => @usec, 'N' => @usec,
+                 'A' => @wday,  'w' => @wday, 's' => @time.to_i,
+                 'n' => "\n",   't' => "\t",  '%' => '%' }
+      default_padding = { 'e' => ' ', 'k' => ' ', 'A' => ' ', 'n' => ' ', 't' => ' ', '%' => ' ' }
+      default_padding.default = '0'
+      default_width = { 'y' => 2, 'm' => 2, 'd' => 2, 'e' => 2, 'H' => 2, 'k' => 2, 'M' => 2, 'S' => 2,
+                        'j' => 3, 'L' => 3,
+                        'N' => 6 }
+      default_width.default = 0
+
+      format.gsub(/%([-_0^#]+)?(\d+)?([FXRT])/) {
+        case $3
+        when 'F'      then '%Y-%m-%d'
+        when 'T', 'X' then '%H:%M:%S'
+        when 'R'      then '%H:%M'
+        end
+      }.gsub(/%([-_0^#]+)?(\d+)?([YCymdejHkMSLNAawsnt%])/) {|s|
+        flags = $1; width = $2.to_i; conversion = $3; upcase = false
+        padding = default_padding[conversion]
+        width = default_width[conversion] if width.zero?
+        v = source[conversion]
+
+        flags.each_char {|c|
+          case c
+          when '-' then padding = nil
+          when '_' then padding = ' '
+          when '0' then padding = '0'
+          when '^', '#' then upcase = true
+          end
+        } if flags
+
+        case conversion
+        when 'L', 'N'
+          if (width <= 6)
+            v = v / (100000 / (10 ** (width - 1)))
+          else
+            v = v * (10 ** (width - 6))
+          end
+        when 'A'
+          v = Vanadiel::Day::DAYNAMES[v]
+        end
+
+        v = v.to_s
+        if width > 0 && padding && v.length < width
+          v = (padding * (width - v.length)) + v
+        end
+
+        upcase ? v.upcase : v
+      }
+    end
 
     def to_i; @time.to_i; end
     def to_f; @time;      end

@@ -1,6 +1,6 @@
 module Vanadiel
   # weekdays
-  module Week
+  module Day
     FIRE      = 0
     EARTH     = 1
     WATER     = 2
@@ -9,5 +9,7 @@ module Vanadiel
     LIGHTNING = 5
     LIGHT     = 6
     DARK      = 7
+
+    DAYNAMES = %w(Firesday Earthsday Watersday Windsday Iceday Lightningday Lightsday Darksday)
   end
 end
