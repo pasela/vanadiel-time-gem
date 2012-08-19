@@ -86,14 +86,14 @@ module Vanadiel
       (earth_time + DIFF_TIME) * VANA_TIME_SCALE - ONE_YEAR
     end
 
-    def fire?;      @wday == Vanadiel::Day::FIRE;      end
-    def earth?;     @wday == Vanadiel::Day::EARTH;     end
-    def water?;     @wday == Vanadiel::Day::WATER;     end
-    def wind?;      @wday == Vanadiel::Day::WIND;      end
-    def ice?;       @wday == Vanadiel::Day::ICE;       end
-    def lightning?; @wday == Vanadiel::Day::LIGHTNING; end
-    def light?;     @wday == Vanadiel::Day::LIGHT;     end
-    def dark?;      @wday == Vanadiel::Day::DARK;      end
+    def firesday?;      @wday == Vanadiel::Day::FIRESDAY;      end
+    def earthsday?;     @wday == Vanadiel::Day::EARTHSDAY;     end
+    def watersday?;     @wday == Vanadiel::Day::WATERSDAY;     end
+    def windsday?;      @wday == Vanadiel::Day::WINDSDAY;      end
+    def iceday?;        @wday == Vanadiel::Day::ICEDAY;        end
+    def lightningday?;  @wday == Vanadiel::Day::LIGHTNINGDAY;  end
+    def lightsday?;     @wday == Vanadiel::Day::LIGHTSDAY;     end
+    def darksday?;      @wday == Vanadiel::Day::DARKSDAY;      end
 
     # Format Vana'diel time according to the directives in the format string.
     # The directives begins with a percent (%) character. Any text not listed

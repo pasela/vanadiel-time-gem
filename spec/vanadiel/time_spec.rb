@@ -166,14 +166,14 @@ end
 
 describe Vanadiel::Time, '#fire? with 1000-01-01' do
   subject { Vanadiel::Time.new(1000, 1, 1) }
-  it { should be_fire }
-  it { should_not be_earth }
-  it { should_not be_water }
-  it { should_not be_wind }
-  it { should_not be_ice }
-  it { should_not be_lightning }
-  it { should_not be_light }
-  it { should_not be_dark }
+  it { should be_firesday }
+  it { should_not be_earthsday }
+  it { should_not be_watersday }
+  it { should_not be_windsday }
+  it { should_not be_iceday }
+  it { should_not be_lightningday }
+  it { should_not be_lightsday }
+  it { should_not be_darksday }
 end
 
 describe Vanadiel::Time, '#to_i' do
