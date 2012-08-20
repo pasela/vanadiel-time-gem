@@ -1,8 +1,8 @@
-= vanadiel
+= vanadiel-time
 
-* {Homepage}[https://github.com/pasela/vanadiel-gem]
-* {Issues}[https://github.com/pasela/vanadiel-gem/issues]
-* {Documentation}[http://rubydoc.info/gems/vanadiel/frames]
+* {Homepage}[https://github.com/pasela/vanadiel-time-gem]
+* {Issues}[https://github.com/pasela/vanadiel-time-gem/issues]
+* {Documentation}[http://rubydoc.info/gems/vanadiel-time/frames]
 * {Email}[mailto:paselan at gmail.com]
 
 == Description
@@ -15,13 +15,13 @@ Converting between realtime and vana'diel time, and so on.
 
 == Examples
 
-  require 'vanadiel'
+  require 'vanadiel/time'
 
 == Requirements
 
 == Install
 
-  $ gem install vanadiel
+  $ gem install vanadiel-time
 
 == Copyright
 

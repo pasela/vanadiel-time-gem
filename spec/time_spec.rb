@@ -4,6 +4,12 @@ require 'spec_helper'
 require 'vanadiel/time'
 require 'time'
 
+describe Vanadiel::Time do
+  it "should have a VERSION constant" do
+    subject.class.const_get('VERSION').should_not be_empty
+  end
+end
+
 describe Vanadiel::Time, '.earth_to_vana' do
   context 'with argument -91270800000000' do
     it 'should return 0' do

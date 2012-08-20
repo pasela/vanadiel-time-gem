@@ -1,7 +1,4 @@
 require 'rspec'
-require 'vanadiel/version'
-
-include Vanadiel
 
 # class Time
 #   # Convert timezone

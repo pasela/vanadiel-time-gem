@@ -16,6 +16,9 @@ require 'vanadiel/moon'
 # C.E. 2047/10/21(Win) 15:37:30
 module Vanadiel
   class Time
+    # vanadiel-time version
+    VERSION = "0.1.0"
+
     # Convenient constants for time calculation
     ONE_SECOND = 1000000.0
     ONE_MINUTE = 60  * ONE_SECOND

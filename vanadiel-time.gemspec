@@ -1,16 +1,17 @@
 # -*- encoding: utf-8 -*-
 
-require File.expand_path('../lib/vanadiel/version', __FILE__)
+$:.unshift File.expand_path("../lib", __FILE__)
+require 'vanadiel/time'
 
 Gem::Specification.new do |gem|
-  gem.name          = "vanadiel"
-  gem.version       = Vanadiel::VERSION
-  gem.summary       = %q{A library for dealing with staff from Final Fantasy XI}
+  gem.name          = "vanadiel-time"
+  gem.version       = Vanadiel::Time::VERSION
+  gem.summary       = %q{A library for dealing with Vana'diel time from Final Fantasy XI}
   gem.description   = %q{Converting between realtime and vana'diel time, and so on.}
   gem.license       = "MIT"
   gem.authors       = ["Yuki"]
   gem.email         = "paselan@gmail.com"
-  gem.homepage      = "https://github.com/pasela/vanadiel-gem"
+  gem.homepage      = "https://github.com/pasela/vanadiel-time-gem"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
