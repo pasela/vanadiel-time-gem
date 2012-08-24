@@ -12,6 +12,7 @@ module Vanadiel
     LIGHTSDAY     = 6 # 光曜日
     DARKSDAY      = 7 # 闇曜日
 
-    DAYNAMES = %w(Firesday Earthsday Watersday Windsday Iceday Lightningday Lightsday Darksday)
+    DAYNAMES    = ['Firesday', 'Earthsday', 'Watersday', 'Windsday', 'Iceday', 'Lightningday', 'Lightsday', 'Darksday']
+    DAYNAMES_JA = ['火曜日',   '土曜日',    '水曜日',    '風曜日',   '氷曜日', '雷曜日',       '光曜日',    '闇曜日']
   end
 end

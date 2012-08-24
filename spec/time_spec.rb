@@ -73,6 +73,20 @@ shared_examples 'YMDHMS constructor' do |ctor|
       subject.to_earth_time.should == Time.gm(2047, 10, 21, 15, 37, 30)
     end
   end
+
+  context 'with arguments (1, 1, 1, 0, 0, 0, 0)' do
+    subject { Vanadiel::Time.send(ctor, 1, 1, 1, 0, 0, 0, 0) }
+    it 'should create Vana\'diel time "1/01/01 00:00:00"' do
+      subject.to_f.should == 0
+    end
+  end
+
+  context 'with arguments (1, 1, 1, 0, 0, 0, 999999)' do
+    subject { Vanadiel::Time.send(ctor, 1, 1, 1, 0, 0, 0, 999999) }
+    it 'should create Vana\'diel time "1/01/01 00:00:00.999999"' do
+      subject.to_f.should == 999999
+    end
+  end
 end
 
 describe Vanadiel::Time, '.new' do
@@ -157,13 +171,196 @@ describe 'Vanadiel::Time properties' do
     before do
       @year = 887;  @mon  = 4;    @day      = 21
       @hour = 12;   @min  = 34;   @sec      = 56; @usec         = 123456
-      @wday = 6;    @yday = 140;  @moon_age = 7;  @time_of_moon = 131696123457
+      @wday = 6;    @yday = 111;  @moon_age = 7;  @time_of_moon = 131696123456
     end
 
     subject { Vanadiel::Time.new(@year, @mon, @day, @hour, @min, @sec, @usec) }
 
     it_should_behave_like "time object which has each part property"
   end
+end
+
+describe Vanadiel::Time, '#moon_percent' do
+  patterns = [
+    { 'vana_time' => Vanadiel::Time.new(   1,  1,  1), 'moon_age' =>  1, 'moon_age7' => 1, 'moon_percent' =>  19 },
+    { 'vana_time' => Vanadiel::Time.new( 886,  1,  1), 'moon_age' =>  0, 'moon_age7' => 0, 'moon_percent' =>  10 },
+
+    # 二十六夜 12%(Waning Crescent Moon)
+    { 'vana_time' => Vanadiel::Time.new(1155, 12, 18, 23, 59, 59, 999999), 'moon_age' => 11, 'moon_age7' => 7, 'moon_percent' =>  12 },
+    # 新月 10%(New Moon)
+    { 'vana_time' => Vanadiel::Time.new(1155, 12, 19), 'moon_age' =>  0, 'moon_age7' => 0, 'moon_percent' =>  10 },
+    # 新月 10%(New Moon)
+    { 'vana_time' => Vanadiel::Time.new(1155, 12, 19, 23, 59, 59, 999999), 'moon_age' =>  0, 'moon_age7' => 0, 'moon_percent' =>  10 },
+    # 新月 7%(New Moon)
+    { 'vana_time' => Vanadiel::Time.new(1155, 12, 20), 'moon_age' =>  0, 'moon_age7' => 0, 'moon_percent' =>   7 },
+    # 新月 5%(New Moon)
+    { 'vana_time' => Vanadiel::Time.new(1155, 12, 21), 'moon_age' =>  0, 'moon_age7' => 0, 'moon_percent' =>   5 },
+    # 新月 2%(New Moon)
+    { 'vana_time' => Vanadiel::Time.new(1155, 12, 22), 'moon_age' =>  0, 'moon_age7' => 0, 'moon_percent' =>   2 },
+    # 新月 2%(New Moon)
+    { 'vana_time' => Vanadiel::Time.new(1155, 12, 22, 23, 59, 59, 999999), 'moon_age' =>  0, 'moon_age7' => 0, 'moon_percent' =>   2 },
+    # 新月 0%(New Moon)
+    { 'vana_time' => Vanadiel::Time.new(1155, 12, 23), 'moon_age' =>  0, 'moon_age7' => 0, 'moon_percent' =>   0 },
+
+    { 'vana_time' => Vanadiel::Time.new(1156,  1,  2), 'moon_age' =>  1, 'moon_age7' => 1, 'moon_percent' =>  21 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  1,  3), 'moon_age' =>  2, 'moon_age7' => 1, 'moon_percent' =>  24 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  1,  9), 'moon_age' =>  2, 'moon_age7' => 1, 'moon_percent' =>  38 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  1, 10), 'moon_age' =>  3, 'moon_age7' => 2, 'moon_percent' =>  40 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  1, 16), 'moon_age' =>  3, 'moon_age7' => 2, 'moon_percent' =>  55 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  1, 17), 'moon_age' =>  4, 'moon_age7' => 3, 'moon_percent' =>  57 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  1, 23), 'moon_age' =>  4, 'moon_age7' => 3, 'moon_percent' =>  71 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  1, 24), 'moon_age' =>  5, 'moon_age7' => 3, 'moon_percent' =>  74 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  1, 30), 'moon_age' =>  5, 'moon_age7' => 3, 'moon_percent' =>  88 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  2,  1), 'moon_age' =>  6, 'moon_age7' => 4, 'moon_percent' =>  90 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  2,  5), 'moon_age' =>  6, 'moon_age7' => 4, 'moon_percent' => 100 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  2,  7), 'moon_age' =>  6, 'moon_age7' => 4, 'moon_percent' =>  95 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  2,  8), 'moon_age' =>  7, 'moon_age7' => 5, 'moon_percent' =>  93 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  2, 14), 'moon_age' =>  7, 'moon_age7' => 5, 'moon_percent' =>  79 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  2, 15), 'moon_age' =>  8, 'moon_age7' => 5, 'moon_percent' =>  76 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  2, 21), 'moon_age' =>  8, 'moon_age7' => 5, 'moon_percent' =>  62 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  2, 22), 'moon_age' =>  9, 'moon_age7' => 6, 'moon_percent' =>  60 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  2, 28), 'moon_age' =>  9, 'moon_age7' => 6, 'moon_percent' =>  45 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  2, 29), 'moon_age' => 10, 'moon_age7' => 7, 'moon_percent' =>  43 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  3,  5), 'moon_age' => 10, 'moon_age7' => 7, 'moon_percent' =>  29 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  3,  6), 'moon_age' => 11, 'moon_age7' => 7, 'moon_percent' =>  26 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  3, 12), 'moon_age' => 11, 'moon_age7' => 7, 'moon_percent' =>  12 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  3, 13), 'moon_age' =>  0, 'moon_age7' => 0, 'moon_percent' =>  10 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  3, 17), 'moon_age' =>  0, 'moon_age7' => 0, 'moon_percent' =>   0 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  3, 19), 'moon_age' =>  0, 'moon_age7' => 0, 'moon_percent' =>   5 },
+    { 'vana_time' => Vanadiel::Time.new(1156,  3, 20), 'moon_age' =>  1, 'moon_age7' => 1, 'moon_percent' =>   7 },
+  ]
+
+  patterns.each {|p|
+    context "with C.E. #{p['vana_time'].strftime('%F %T.%N')}" do
+      describe '#moon_age' do
+        subject { p['vana_time'].moon_age }
+        it { should == p['moon_age'] }
+      end
+
+      describe '#moon_age12' do
+        subject { p['vana_time'].moon_age12 }
+        it { should == p['moon_age'] }
+      end
+
+      describe '#moon_age7' do
+        subject { p['vana_time'].moon_age7 }
+        it { should == p['moon_age7'] }
+      end
+
+      describe '#moon_percent' do
+        subject { p['vana_time'].moon_percent }
+        it { should == p['moon_percent'] }
+      end
+    end
+  }
+
+  # 1155/12/18 00:00:00 二十六夜 12%(Waning Crescent Moon)
+  # 1155/12/19 00:00:00 新月 10%(New Moon)
+  # 1155/12/20 00:00:00 新月 7%(New Moon)
+  # 1155/12/21 00:00:00 新月 5%(New Moon)
+  # 1155/12/22 00:00:00 新月 2%(New Moon)
+  # 1155/12/23 00:00:00 新月 0%(New Moon)
+  # 1155/12/24 00:00:00 新月 2%(New Moon)
+  # 1155/12/25 00:00:00 新月 5%(New Moon)
+  # 1155/12/26 00:00:00 三日月 7%(Waxing Crescent Moon)
+  # 1155/12/27 00:00:00 三日月 10%(Waxing Crescent Moon)
+  # 1155/12/28 00:00:00 三日月 12%(Waxing Crescent Moon)
+  # 1155/12/29 00:00:00 三日月 14%(Waxing Crescent Moon)
+  # 1155/12/30 00:00:00 三日月 17%(Waxing Crescent Moon)
+  # 1156/01/01 00:00:00 三日月 19%(Waxing Crescent Moon)
+  # 1156/01/02 00:00:00 三日月 21%(Waxing Crescent Moon)
+  # 1156/01/03 00:00:00 七日月 24%(Waxing Crescent Moon)
+  # 1156/01/04 00:00:00 七日月 26%(Waxing Crescent Moon)
+  # 1156/01/05 00:00:00 七日月 29%(Waxing Crescent Moon)
+  # 1156/01/06 00:00:00 七日月 31%(Waxing Crescent Moon)
+  # 1156/01/07 00:00:00 七日月 33%(Waxing Crescent Moon)
+  # 1156/01/08 00:00:00 七日月 36%(Waxing Crescent Moon)
+  # 1156/01/09 00:00:00 七日月 38%(Waxing Crescent Moon)
+  # 1156/01/10 00:00:00 上弦の月 40%(First Quarter Moon)
+  # 1156/01/11 00:00:00 上弦の月 43%(First Quarter Moon)
+  # 1156/01/12 00:00:00 上弦の月 45%(First Quarter Moon)
+  # 1156/01/13 00:00:00 上弦の月 48%(First Quarter Moon)
+  # 1156/01/14 00:00:00 上弦の月 50%(First Quarter Moon)
+  # 1156/01/15 00:00:00 上弦の月 52%(First Quarter Moon)
+  # 1156/01/16 00:00:00 上弦の月 55%(First Quarter Moon)
+  # 1156/01/17 00:00:00 十日夜 57%(Waxing Gibbous Moon)
+  # 1156/01/18 00:00:00 十日夜 60%(Waxing Gibbous Moon)
+  # 1156/01/19 00:00:00 十日夜 62%(Waxing Gibbous Moon)
+  # 1156/01/20 00:00:00 十日夜 64%(Waxing Gibbous Moon)
+  # 1156/01/21 00:00:00 十日夜 67%(Waxing Gibbous Moon)
+  # 1156/01/22 00:00:00 十日夜 69%(Waxing Gibbous Moon)
+  # 1156/01/23 00:00:00 十日夜 71%(Waxing Gibbous Moon)
+  # 1156/01/24 00:00:00 十三夜 74%(Waxing Gibbous Moon)
+  # 1156/01/25 00:00:00 十三夜 76%(Waxing Gibbous Moon)
+  # 1156/01/26 00:00:00 十三夜 79%(Waxing Gibbous Moon)
+  # 1156/01/27 00:00:00 十三夜 81%(Waxing Gibbous Moon)
+  # 1156/01/28 00:00:00 十三夜 83%(Waxing Gibbous Moon)
+  # 1156/01/29 00:00:00 十三夜 86%(Waxing Gibbous Moon)
+  # 1156/01/30 00:00:00 十三夜 88%(Waxing Gibbous Moon)
+  # 1156/02/01 00:00:00 満月 90%(Full Moon)
+  # 1156/02/02 00:00:00 満月 93%(Full Moon)
+  # 1156/02/03 00:00:00 満月 95%(Full Moon)
+  # 1156/02/04 00:00:00 満月 98%(Full Moon)
+  # 1156/02/05 00:00:00 満月 100%(Full Moon)
+  # 1156/02/06 00:00:00 満月 98%(Full Moon)
+  # 1156/02/07 00:00:00 満月 95%(Full Moon)
+  # 1156/02/08 00:00:00 十六夜 93%(Waning Gibbous Moon)
+  # 1156/02/09 00:00:00 十六夜 90%(Waning Gibbous Moon)
+  # 1156/02/10 00:00:00 十六夜 88%(Waning Gibbous Moon)
+  # 1156/02/11 00:00:00 十六夜 86%(Waning Gibbous Moon)
+  # 1156/02/12 00:00:00 十六夜 83%(Waning Gibbous Moon)
+  # 1156/02/13 00:00:00 十六夜 81%(Waning Gibbous Moon)
+  # 1156/02/14 00:00:00 十六夜 79%(Waning Gibbous Moon)
+  # 1156/02/15 00:00:00 居待月 76%(Waning Gibbous Moon)
+  # 1156/02/16 00:00:00 居待月 74%(Waning Gibbous Moon)
+  # 1156/02/17 00:00:00 居待月 71%(Waning Gibbous Moon)
+  # 1156/02/18 00:00:00 居待月 69%(Waning Gibbous Moon)
+  # 1156/02/19 00:00:00 居待月 67%(Waning Gibbous Moon)
+  # 1156/02/20 00:00:00 居待月 64%(Waning Gibbous Moon)
+  # 1156/02/21 00:00:00 居待月 62%(Waning Gibbous Moon)
+  # 1156/02/22 00:00:00 下弦の月 60%(Last Quarter Moon)
+  # 1156/02/23 00:00:00 下弦の月 57%(Last Quarter Moon)
+  # 1156/02/24 00:00:00 下弦の月 55%(Last Quarter Moon)
+  # 1156/02/25 00:00:00 下弦の月 52%(Last Quarter Moon)
+  # 1156/02/26 00:00:00 下弦の月 50%(Last Quarter Moon)
+  # 1156/02/27 00:00:00 下弦の月 48%(Last Quarter Moon)
+  # 1156/02/28 00:00:00 下弦の月 45%(Last Quarter Moon)
+  # 1156/02/29 00:00:00 二十日余月 43%(Waning Crescent Moon)
+  # 1156/02/30 00:00:00 二十日余月 40%(Waning Crescent Moon)
+  # 1156/03/01 00:00:00 二十日余月 38%(Waning Crescent Moon)
+  # 1156/03/02 00:00:00 二十日余月 36%(Waning Crescent Moon)
+  # 1156/03/03 00:00:00 二十日余月 33%(Waning Crescent Moon)
+  # 1156/03/04 00:00:00 二十日余月 31%(Waning Crescent Moon)
+  # 1156/03/05 00:00:00 二十日余月 29%(Waning Crescent Moon)
+  # 1156/03/06 00:00:00 二十六夜 26%(Waning Crescent Moon)
+  # 1156/03/07 00:00:00 二十六夜 24%(Waning Crescent Moon)
+  # 1156/03/08 00:00:00 二十六夜 21%(Waning Crescent Moon)
+  # 1156/03/09 00:00:00 二十六夜 19%(Waning Crescent Moon)
+  # 1156/03/10 00:00:00 二十六夜 17%(Waning Crescent Moon)
+  # 1156/03/11 00:00:00 二十六夜 14%(Waning Crescent Moon)
+  # 1156/03/12 00:00:00 二十六夜 12%(Waning Crescent Moon)
+  # 1156/03/13 00:00:00 新月 10%(New Moon)
+  # 1156/03/14 00:00:00 新月 7%(New Moon)
+  # 1156/03/15 00:00:00 新月 5%(New Moon)
+  # 1156/03/16 00:00:00 新月 2%(New Moon)
+  # 1156/03/17 00:00:00 新月 0%(New Moon)
+  # 1156/03/18 00:00:00 新月 2%(New Moon)
+  # 1156/03/19 00:00:00 新月 5%(New Moon)
+  # 1156/03/20 00:00:00 三日月 7%(Waxing Crescent Moon)
+  # 1156/03/21 00:00:00 三日月 10%(Waxing Crescent Moon)
+  # 1156/03/22 00:00:00 三日月 12%(Waxing Crescent Moon)
+  # 1156/03/23 00:00:00 三日月 14%(Waxing Crescent Moon)
+  # 1156/03/24 00:00:00 三日月 17%(Waxing Crescent Moon)
+  # 1156/03/25 00:00:00 三日月 19%(Waxing Crescent Moon)
+  # 1156/03/26 00:00:00 三日月 21%(Waxing Crescent Moon)
+  # 1156/03/27 00:00:00 七日月 24%(Waxing Crescent Moon)
+  # 1156/03/28 00:00:00 七日月 26%(Waxing Crescent Moon)
+  # 1156/03/29 00:00:00 七日月 29%(Waxing Crescent Moon)
+  # 1156/03/30 00:00:00 七日月 31%(Waxing Crescent Moon)
+  # 1156/04/01 00:00:00 七日月 33%(Waxing Crescent Moon)
+  # 1156/04/02 00:00:00 七日月 36%(Waxing Crescent Moon)
+  # 1156/04/03 00:00:00 七日月 38%(Waxing Crescent Moon)
+  # 1156/04/04 00:00:00 上弦の月 40%(First Quarter Moon)
 end
 
 shared_context 'Vanadiel::Time with arguments(2047, 10, 21, 15, 37, 30, 123456)' do
@@ -219,8 +416,8 @@ describe Vanadiel::Time, '#strftime' do
       '%e'   => ' 4',     '%-e'  => '4',     '%_e'  => ' 4',     '%0e'  => '04',
       '%6e'  => '     4', '%-6e' => '4',     '%_6e' => '     4', '%06e' => '000004', '%01e' => '4',
 
-      '%j'   => '093',    '%-j'  => '93',    '%_j'  => ' 93',    '%0j'  => '093',
-      '%6j'  => '000093', '%-6j' => '93',    '%_6j' => '    93', '%06j' => '000093', '%01j' => '93',
+      '%j'   => '064',    '%-j'  => '64',    '%_j'  => ' 64',    '%0j'  => '064',
+      '%6j'  => '000064', '%-6j' => '64',    '%_6j' => '    64', '%06j' => '000064', '%01j' => '64',
 
       '%H'   => '05',     '%-H'  => '5',     '%_H'  => ' 5',     '%0H'  => '05',
       '%6H'  => '000005', '%-6H' => '5',     '%_6H' => '     5', '%06H' => '000005', '%01H' => '5',
