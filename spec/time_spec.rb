@@ -152,26 +152,27 @@ end
 
 describe 'Vanadiel::Time properties' do
   share_examples_for "time object which has each part property" do
-    describe '#year'         do it { subject.year.should         == @year         } end
-    describe '#month'        do it { subject.month.should        == @mon          } end
-    describe '#mon'          do it { subject.mon.should          == @mon          } end
-    describe '#mday'         do it { subject.mday.should         == @day          } end
-    describe '#day'          do it { subject.day.should          == @day          } end
-    describe '#hour'         do it { subject.hour.should         == @hour         } end
-    describe '#min'          do it { subject.min.should          == @min          } end
-    describe '#sec'          do it { subject.sec.should          == @sec          } end
-    describe '#usec'         do it { subject.usec.should         == @usec         } end
-    describe '#wday'         do it { subject.wday.should         == @wday         } end
-    describe '#yday'         do it { subject.yday.should         == @yday         } end
-    describe '#moon_age'     do it { subject.moon_age.should     == @moon_age     } end
-    describe '#time_of_moon' do it { subject.time_of_moon.should == @time_of_moon } end
+    its(:year)         { should == @year         }
+    its(:month)        { should == @mon          }
+    its(:mon)          { should == @mon          }
+    its(:mday)         { should == @day          }
+    its(:day)          { should == @day          }
+    its(:hour)         { should == @hour         }
+    its(:min)          { should == @min          }
+    its(:sec)          { should == @sec          }
+    its(:usec)         { should == @usec         }
+    its(:wday)         { should == @wday         }
+    its(:yday)         { should == @yday         }
+    its(:moon_age)     { should == @moon_age     }
+    its(:moon_age7)    { should == @moon_age7    }
+    its(:time_of_moon) { should == @time_of_moon }
   end
 
   context 'with C.E. 887/04/21 12:34:56' do
     before do
       @year = 887;  @mon  = 4;    @day      = 21
-      @hour = 12;   @min  = 34;   @sec      = 56; @usec         = 123456
-      @wday = 6;    @yday = 111;  @moon_age = 7;  @time_of_moon = 131696123456
+      @hour = 12;   @min  = 34;   @sec      = 56; @usec      = 123456
+      @wday = 6;    @yday = 111;  @moon_age = 7;  @moon_age7 = 5;     @time_of_moon = 131696123456
     end
 
     subject { Vanadiel::Time.new(@year, @mon, @day, @hour, @min, @sec, @usec) }
@@ -232,25 +233,11 @@ describe Vanadiel::Time, '#moon_percent' do
 
   patterns.each {|p|
     context "with C.E. #{p['vana_time'].strftime('%F %T.%N')}" do
-      describe '#moon_age' do
-        subject { p['vana_time'].moon_age }
-        it { should == p['moon_age'] }
-      end
-
-      describe '#moon_age12' do
-        subject { p['vana_time'].moon_age12 }
-        it { should == p['moon_age'] }
-      end
-
-      describe '#moon_age7' do
-        subject { p['vana_time'].moon_age7 }
-        it { should == p['moon_age7'] }
-      end
-
-      describe '#moon_percent' do
-        subject { p['vana_time'].moon_percent }
-        it { should == p['moon_percent'] }
-      end
+      subject { p['vana_time'] }
+      its(:moon_age)     { should == p['moon_age'] }
+      its(:moon_age12)   { should == p['moon_age'] }
+      its(:moon_age7)    { should == p['moon_age7'] }
+      its(:moon_percent) { should == p['moon_percent'] }
     end
   }
 
@@ -367,7 +354,7 @@ shared_context 'Vanadiel::Time with arguments(2047, 10, 21, 15, 37, 30, 123456)'
   let(:vana_time) { Vanadiel::Time.new(2047, 10, 21, 15, 37, 30, 123456) }
 end
 
-describe Vanadiel::Time, '#fire? with 1000-01-01' do
+describe Vanadiel::Time, '#firesday? with 1000-01-01' do
   subject { Vanadiel::Time.new(1000, 1, 1) }
   it { should be_firesday }
   it { should_not be_earthsday }
