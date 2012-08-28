@@ -237,6 +237,26 @@ module Vanadiel
       }
     end
 
+    def +(sec)
+      self.class.at(@time + (sec * ONE_SECOND))
+    end
+
+    def -(time)
+      if time.is_a? ::Time
+        (@time - self.class.earth_to_vana(time.to_f * ONE_SECOND)) / ONE_SECOND
+      elsif time.is_a?(Vanadiel::Time)
+        (@time - time.to_f) / ONE_SECOND
+      elsif time.is_a?(Integer) || time.is_a?(Float)
+        self.class.at(@time - (time * ONE_SECOND))
+      else
+        raise ArgumentError, 'invalid argument'
+      end
+    end
+
+    def <=>(time)
+      @time <=> time.to_i
+    end
+
     def to_i; @time;      end
     def to_f; @time.to_f; end
 

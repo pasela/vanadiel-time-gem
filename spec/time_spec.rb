@@ -354,16 +354,102 @@ shared_context 'Vanadiel::Time with arguments(2047, 10, 21, 15, 37, 30, 123456)'
   let(:vana_time) { Vanadiel::Time.new(2047, 10, 21, 15, 37, 30, 123456) }
 end
 
-describe Vanadiel::Time, '#firesday? with 1000-01-01' do
-  subject { Vanadiel::Time.new(1000, 1, 1) }
-  it { should be_firesday }
-  it { should_not be_earthsday }
-  it { should_not be_watersday }
-  it { should_not be_windsday }
-  it { should_not be_iceday }
-  it { should_not be_lightningday }
-  it { should_not be_lightsday }
-  it { should_not be_darksday }
+describe Vanadiel::Time, ' weekday methods' do
+  context 'when C.E. 1000-01-01' do
+    subject { Vanadiel::Time.new(1000, 1, 1) }
+    it { should be_firesday }
+    it { should_not be_earthsday }
+    it { should_not be_watersday }
+    it { should_not be_windsday }
+    it { should_not be_iceday }
+    it { should_not be_lightningday }
+    it { should_not be_lightsday }
+    it { should_not be_darksday }
+  end
+
+  context 'when C.E. 1000-01-02' do
+    subject { Vanadiel::Time.new(1000, 1, 2) }
+    it { should_not be_firesday }
+    it { should be_earthsday }
+    it { should_not be_watersday }
+    it { should_not be_windsday }
+    it { should_not be_iceday }
+    it { should_not be_lightningday }
+    it { should_not be_lightsday }
+    it { should_not be_darksday }
+  end
+
+  context 'when C.E. 1000-01-03' do
+    subject { Vanadiel::Time.new(1000, 1, 3) }
+    it { should_not be_firesday }
+    it { should_not be_earthsday }
+    it { should be_watersday }
+    it { should_not be_windsday }
+    it { should_not be_iceday }
+    it { should_not be_lightningday }
+    it { should_not be_lightsday }
+    it { should_not be_darksday }
+  end
+
+  context 'when C.E. 1000-01-04' do
+    subject { Vanadiel::Time.new(1000, 1, 4) }
+    it { should_not be_firesday }
+    it { should_not be_earthsday }
+    it { should_not be_watersday }
+    it { should be_windsday }
+    it { should_not be_iceday }
+    it { should_not be_lightningday }
+    it { should_not be_lightsday }
+    it { should_not be_darksday }
+  end
+
+  context 'when C.E. 1000-01-05' do
+    subject { Vanadiel::Time.new(1000, 1, 5) }
+    it { should_not be_firesday }
+    it { should_not be_earthsday }
+    it { should_not be_watersday }
+    it { should_not be_windsday }
+    it { should be_iceday }
+    it { should_not be_lightningday }
+    it { should_not be_lightsday }
+    it { should_not be_darksday }
+  end
+
+  context 'when C.E. 1000-01-06' do
+    subject { Vanadiel::Time.new(1000, 1, 6) }
+    it { should_not be_firesday }
+    it { should_not be_earthsday }
+    it { should_not be_watersday }
+    it { should_not be_windsday }
+    it { should_not be_iceday }
+    it { should be_lightningday }
+    it { should_not be_lightsday }
+    it { should_not be_darksday }
+  end
+
+  context 'when C.E. 1000-01-07' do
+    subject { Vanadiel::Time.new(1000, 1, 7) }
+    it { should_not be_firesday }
+    it { should_not be_earthsday }
+    it { should_not be_watersday }
+    it { should_not be_windsday }
+    it { should_not be_iceday }
+    it { should_not be_lightningday }
+    it { should be_lightsday }
+    it { should_not be_darksday }
+  end
+
+  context 'when C.E. 1000-01-08' do
+    subject { Vanadiel::Time.new(1000, 1, 8) }
+    it { should_not be_firesday }
+    it { should_not be_earthsday }
+    it { should_not be_watersday }
+    it { should_not be_windsday }
+    it { should_not be_iceday }
+    it { should_not be_lightningday }
+    it { should_not be_lightsday }
+    it { should be_darksday }
+  end
 end
 
 describe Vanadiel::Time, '#to_i' do
@@ -494,5 +580,68 @@ describe Vanadiel::Time, '#eql?' do
     it 'should be true' do
       should eql other
     end
+  end
+end
+
+describe Vanadiel::Time, '#+' do
+  context 'with 10.123456' do
+    subject { described_class.new(2047, 10, 21) + 10.123456 }
+    it 'should add 10.123456sec and returns that value as a new time' do
+      should == described_class.new(2047, 10, 21, 0, 0, 10, 123456)
+    end
+  end
+
+  context 'with -10.123456' do
+    subject { described_class.new(2047, 10, 21) + -10.123456 }
+    it 'should subtract 10.123456sec and returns that value as a new time' do
+      should == described_class.new(2047, 10, 20, 23, 59, 49, 876544)
+    end
+  end
+end
+
+describe Vanadiel::Time, '#-' do
+  context 'with 10.123456' do
+    subject { described_class.new(2047, 10, 21) - 10.123456 }
+    it 'should subtract 10.123456sec and returns that value as a new time' do
+      should == described_class.new(2047, 10, 20, 23, 59, 49, 876544)
+    end
+  end
+
+  context 'with -10.123456' do
+    subject { described_class.new(2047, 10, 21) - -10.123456 }
+    it 'should add 10.123456sec and returns that value as a new time' do
+      should == described_class.new(2047, 10, 21, 0, 0, 10, 123456)
+    end
+  end
+
+  context "with Vana'diel time" do
+    before do
+      @sec = 10.123456
+      @vt = described_class.new(2047, 10, 21)
+    end
+    subject { @vt - (@vt - @sec) }
+    it 'should return difference sec' do
+      should == @sec
+    end
+    it 'should return Float' do
+      (@vt - (@vt - 10)).should be_kind_of Float
+    end
+  end
+end
+
+describe Vanadiel::Time, '#<=>' do
+  context 'with greater time' do
+    subject { described_class.new(2047, 10, 21) <=> described_class.new(2047, 10, 22) }
+    it { should == -1 }
+  end
+
+  context 'with less time' do
+    subject { described_class.new(2047, 10, 21) <=> described_class.new(2047, 10, 20) }
+    it { should == 1 }
+  end
+
+  context 'with same time' do
+    subject { described_class.new(2047, 10, 21) <=> described_class.new(2047, 10, 21) }
+    it { should == 0 }
   end
 end
