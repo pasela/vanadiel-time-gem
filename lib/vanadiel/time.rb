@@ -50,13 +50,13 @@ module Vanadiel
     ONE_MONTH  = 30  * ONE_DAY
     ONE_YEAR   = 360 * ONE_DAY
 
-    VANA_TIME_SCALE = 25
+    VANA_TIME_SCALE = 25  # Vana'diel time goes 25 times faster than the Earth
     VANA_BASE_YEAR  = 886
     VANA_BASE_TIME  = (VANA_BASE_YEAR * ONE_YEAR) / VANA_TIME_SCALE
     EARTH_BASE_TIME = 1009810800 * ONE_SECOND  #=> 2002/01/01 00:00:00.000 JST
     DIFF_TIME       = VANA_BASE_TIME - EARTH_BASE_TIME
     # MOON_BASE_TIME  = 0 - (ONE_DAY * 12) #=> Start of New moon (10%)
-    MOON_CYCLE_DAYS = 84
+    MOON_CYCLE_DAYS = 84  # Vana'diel moon cycle lasts 84 days
 
     attr_reader  :time  # usec since the C.E. 0001-01-01
     attr_reader  :year, :month, :mday, :hour, :min, :sec, :usec
