@@ -286,6 +286,14 @@ module Vanadiel
       compute_fields
     end
 
+    def marshal_dump
+      @time
+    end
+
+    def marshal_load(obj)
+      self.time = obj
+    end
+
     def self.ymdhms_to_usec(year, mon = 1, day = 1, hour = 0, min = 0, sec = 0, usec = 0)
       raise ArgumentError, 'year out of range' if year < 0
       raise ArgumentError, 'mon out of range'  if mon  < 1 || mon > 12

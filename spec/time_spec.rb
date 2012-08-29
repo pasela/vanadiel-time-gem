@@ -671,3 +671,12 @@ describe Vanadiel::Time, '#<=>' do
     it { should == 0 }
   end
 end
+
+describe Vanadiel::Time, '#marshal_dump, #marshal_load' do
+  subject { described_class.new(2047, 10, 21) }
+  it 'should dump and load correctly' do
+    dumped = Marshal.dump(subject)
+    loaded = Marshal.load(dumped)
+    subject.should == loaded
+  end
+end
