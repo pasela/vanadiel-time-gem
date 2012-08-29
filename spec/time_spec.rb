@@ -84,7 +84,7 @@ shared_examples 'YMDHMS constructor' do |ctor|
   context 'with arguments (1, 1, 1, 0, 0, 0, 999999)' do
     subject { Vanadiel::Time.send(ctor, 1, 1, 1, 0, 0, 0, 999999) }
     it 'should create Vana\'diel time "1/01/01 00:00:00.999999"' do
-      subject.to_f.should == 999999
+      subject.to_f.should == 0.999999
     end
   end
 end
@@ -119,6 +119,7 @@ end
 describe Vanadiel::Time, '.at' do
   before do
     @vana_time = Vanadiel::Time.mktime(886, 1, 1, 0, 0, 0)
+    @vana_time_frac = Vanadiel::Time.mktime(886, 1, 1, 0, 0, 0, 120000)
     @earth_time = Time.now
   end
 
@@ -136,10 +137,31 @@ describe Vanadiel::Time, '.at' do
     end
   end
 
+  context 'with argument Integer' do
+    subject { Vanadiel::Time.at(@vana_time.to_i) }
+    it "should create Vana'diel time with passed time as Vana'diel time" do
+      subject.to_f.round(6).should == @vana_time.to_f.round(6)
+    end
+  end
+
+  context 'with argument Integer and usec fraction' do
+    subject { Vanadiel::Time.at(@vana_time.to_i, 120000) }
+    it "should create Vana'diel time with passed time as Vana'diel time" do
+      subject.to_f.round(6).should == @vana_time_frac.to_f.round(6)
+    end
+  end
+
   context 'with argument Float' do
     subject { Vanadiel::Time.at(@vana_time.to_f) }
     it "should create Vana'diel time with passed time as Vana'diel time" do
       subject.to_f.round(6).should == @vana_time.to_f.round(6)
+    end
+  end
+
+  context 'with argument Float and usec fraction' do
+    subject { Vanadiel::Time.at(@vana_time.to_f, 120000) }
+    it "should create Vana'diel time with passed time as Vana'diel time" do
+      subject.to_f.round(6).should == @vana_time_frac.to_f.round(6)
     end
   end
 
@@ -456,14 +478,18 @@ describe Vanadiel::Time, '#to_i' do
   include_context 'Vanadiel::Time with arguments(2047, 10, 21, 15, 37, 30, 123456)'
   subject { vana_time.to_i }
   it { should be_kind_of Integer }
-  it { should === 63663896250123456 }
+  it 'should return the time as an integer of seconds' do
+    should === 63663896250
+  end
 end
 
 describe Vanadiel::Time, '#to_f' do
   include_context 'Vanadiel::Time with arguments(2047, 10, 21, 15, 37, 30, 123456)'
   subject { vana_time.to_f }
   it { should be_kind_of Float }
-  it { should === 63663896250123456.0 }
+  it 'should return the time as an Float of seconds' do
+    should === 63663896250.123456
+  end
 end
 
 describe Vanadiel::Time, '#strftime' do

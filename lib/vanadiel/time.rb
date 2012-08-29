@@ -58,6 +58,7 @@ module Vanadiel
     # MOON_BASE_TIME  = 0 - (ONE_DAY * 12) #=> Start of New moon (10%)
     MOON_CYCLE_DAYS = 84
 
+    attr_reader  :time  # usec since the C.E. 0001-01-01
     attr_reader  :year, :month, :mday, :hour, :min, :sec, :usec
     alias_method :mon, :month
     alias_method :day, :mday
@@ -86,12 +87,14 @@ module Vanadiel
     end
 
     # Create specified Vana'diel time
-    def self.at(time)
+    def self.at(time, usec = 0)
       obj = self.new
       if time.is_a? ::Time
         obj.time = self.earth_to_vana(time.to_f * ONE_SECOND)
-      elsif time.is_a?(Vanadiel::Time) || time.is_a?(Integer) || time.is_a?(Float)
-        obj.time = time.to_i
+      elsif time.is_a?(Vanadiel::Time)
+        obj.time = time.time
+      elsif time.is_a?(Integer) || time.is_a?(Float)
+        obj.time = ((time * ONE_SECOND) + usec).to_i
       else
         raise ArgumentError, 'invalid argument'
       end
@@ -187,7 +190,7 @@ module Vanadiel
       source = { 'Y' => @year,  'C' => @year / 100, 'y' => @year % 100,
                  'm' => @month, 'd' => @mday, 'e' => @mday, 'j' => @yday,
                  'H' => @hour,  'k' => @hour, 'M' => @min,  'S' => @sec, 'L' => @usec, 'N' => @usec,
-                 'A' => @wday,  'w' => @wday, 's' => @time.to_i,
+                 'A' => @wday,  'w' => @wday, 's' => @time,
                  'n' => "\n",   't' => "\t",  '%' => '%' }
       default_padding = { 'e' => ' ', 'k' => ' ', 'A' => ' ', 'n' => ' ', 't' => ' ', '%' => ' ' }
       default_padding.default = '0'
@@ -238,27 +241,32 @@ module Vanadiel
     end
 
     def +(sec)
-      self.class.at(@time + (sec * ONE_SECOND))
+      self.class.at((@time + (sec * ONE_SECOND)) / ONE_SECOND)
     end
 
     def -(time)
       if time.is_a? ::Time
-        (@time - self.class.earth_to_vana(time.to_f * ONE_SECOND)) / ONE_SECOND
+        (@time.to_f - self.class.earth_to_vana(time.to_f * ONE_SECOND)) / ONE_SECOND
       elsif time.is_a?(Vanadiel::Time)
-        (@time - time.to_f) / ONE_SECOND
+        (@time.to_f - time.time) / ONE_SECOND
       elsif time.is_a?(Integer) || time.is_a?(Float)
-        self.class.at(@time - (time * ONE_SECOND))
+        self.class.at((@time / ONE_SECOND) - time)
       else
         raise ArgumentError, 'invalid argument'
       end
     end
 
     def <=>(time)
-      @time <=> time.to_i
+      @time <=> time.time
     end
 
-    def to_i; @time;      end
-    def to_f; @time.to_f; end
+    def to_i
+      @time / ONE_SECOND
+    end
+
+    def to_f
+      @time.to_f / ONE_SECOND
+    end
 
     def to_s
       self.strftime('%Y-%m-%d %H:%M:%S')
@@ -270,7 +278,7 @@ module Vanadiel
 
     def hash; @time.hash ^ self.class.hash; end
 
-    def ==(other);   @time == other.to_i;     end
+    def ==(other);   @time == other.time;     end
     def eql?(other); self.hash == other.hash; end
 
     def time=(time)
