@@ -1,21 +1,36 @@
 # encoding: utf-8
 
 module Vanadiel
-  # moon phase (0-11, for Japanese client)
+  # Vanadiel::Moon has some constants about Vana'diel moon phases (12 steps version).
+  #
+  # moon phase (0..11, for Japanese service)
   module Moon
-    NEW_MOON         = 0  # 新月
-    WAXING_CRESCENT1 = 1  # 三日月
-    WAXING_CRESCENT2 = 2  # 七日月
-    FIRST_QUARTER    = 3  # 上弦の月
-    WAXING_GIBBOUS1  = 4  # 十日夜
-    WAXING_GIBBOUS2  = 5  # 十三夜
-    FULL_MOON        = 6  # 満月
-    WANING_GIBBOUS1  = 7  # 十六夜
-    WANING_GIBBOUS2  = 8  # 居待月
-    LAST_QUARTER     = 9  # 下弦の月
-    WANING_CRESCENT1 = 10 # 二十日余月
-    WANING_CRESCENT2 = 11 # 二十六夜
+    # 新月
+    NEW_MOON         = 0
+    # 三日月
+    WAXING_CRESCENT1 = 1
+    # 七日月
+    WAXING_CRESCENT2 = 2
+    # 上弦の月
+    FIRST_QUARTER    = 3
+    # 十日夜
+    WAXING_GIBBOUS1  = 4
+    # 十三夜
+    WAXING_GIBBOUS2  = 5
+    # 満月
+    FULL_MOON        = 6
+    # 十六夜
+    WANING_GIBBOUS1  = 7
+    # 居待月
+    WANING_GIBBOUS2  = 8
+    # 下弦の月
+    LAST_QUARTER     = 9
+    # 二十日余月
+    WANING_CRESCENT1 = 10
+    # 二十六夜
+    WANING_CRESCENT2 = 11
 
+    # Moon phase names
     MOONNAMES = [
       'New Moon',
       'Waxing Crescent',
@@ -31,6 +46,7 @@ module Vanadiel
       'Waning Crescent',
     ]
 
+    # Moon phase names for Japanese
     MOONNAMES_JA = [
       '新月',
       '三日月',
@@ -47,7 +63,9 @@ module Vanadiel
     ]
   end
 
-  # moon phase (0-7, for Non-Japanese client)
+  # Vanadiel::Moon7 has some constants about Vana'diel moon phases (8 steps version).
+  #
+  # moon phase (0..7, for Non-Japanese service)
   module Moon7
     NEW_MOON        = 0
     WAXING_CRESCENT = 1
@@ -58,6 +76,7 @@ module Vanadiel
     LAST_QUARTER    = 6
     WANING_CRESCENT = 7
 
+    # Moon phase names
     MOONNAMES = [
       'New Moon',
       'Waxing Crescent',

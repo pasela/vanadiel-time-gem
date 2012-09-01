@@ -4,6 +4,9 @@ require 'vanadiel/day'
 require 'vanadiel/moon'
 
 module Vanadiel
+  # Vanadiel::Time is an abstraction of Vana'diel dates and times from Final Fantasy XI.
+  # Time is stored internally as the number of microseconds since C.E. 0001-01-01 00:00:00.
+  #
   # Vana'diel time spec:
   #   One year   = 12 months = 360 days
   #   One month  = 30 days
@@ -26,22 +29,23 @@ module Vanadiel
   #   Japanese client expresses moon phases by 12 kinds of texts. (percentage is not displayed in Japanese client)
   #   Non-Japanese client expresses moon phases by 7 kinds of texts and percentage.
   #
-  # A.D. -91270800 => 1967/02/10 00:00:00 +0900
-  # C.E. 0         => 0001/01/01 00:00:00
+  # C.E. = Crystal Era
   #
-  # A.D. 2002/01/01(Tue) 00:00:00 JST
-  # C.E. 0886/01/01(Fir) 00:00:00
+  #   A.D. -91270800 => 1967/02/10 00:00:00 +0900
+  #   C.E. 0         => 0001/01/01 00:00:00
   #
-  # A.D. 2047/10/22(Tue) 01:00:00 JST
-  # C.E. 2047/10/22(Wat) 01:00:00
+  #   A.D. 2002/01/01(Tue) 00:00:00 JST
+  #   C.E. 0886/01/01(Fir) 00:00:00
   #
-  # A.D. 2047/10/21(Mon) 15:37:30 UTC
-  # C.E. 2047/10/21(Win) 15:37:30
+  #   A.D. 2047/10/22(Tue) 01:00:00 JST
+  #   C.E. 2047/10/22(Wat) 01:00:00
+  #
+  #   A.D. 2047/10/21(Mon) 15:37:30 UTC
+  #   C.E. 2047/10/21(Win) 15:37:30
   class Time
     # vanadiel-time version
     VERSION = "0.1.0"
 
-    # Convenient constants for time calculation
     ONE_SECOND = 1000000
     ONE_MINUTE = 60  * ONE_SECOND
     ONE_HOUR   = 60  * ONE_MINUTE
@@ -53,40 +57,99 @@ module Vanadiel
     VANA_TIME_SCALE = 25  # Vana'diel time goes 25 times faster than the Earth
     VANA_BASE_YEAR  = 886
     VANA_BASE_TIME  = (VANA_BASE_YEAR * ONE_YEAR) / VANA_TIME_SCALE
-    EARTH_BASE_TIME = 1009810800 * ONE_SECOND  #=> 2002/01/01 00:00:00.000 JST
+    EARTH_BASE_TIME = 1009810800 * ONE_SECOND  # 2002/01/01 00:00:00.000 JST
     DIFF_TIME       = VANA_BASE_TIME - EARTH_BASE_TIME
-    # MOON_BASE_TIME  = 0 - (ONE_DAY * 12) #=> Start of New moon (10%)
     MOON_CYCLE_DAYS = 84  # Vana'diel moon cycle lasts 84 days
 
-    attr_reader  :time  # usec since the C.E. 0001-01-01
-    attr_reader  :year, :month, :mday, :hour, :min, :sec, :usec
-    alias_method :mon, :month
-    alias_method :day, :mday
-    attr_reader  :wday                    # Days since Firesday
-    attr_reader  :yday                    # Days since 1/1
-    attr_reader  :moon_age                # Moon age (0-11) for Japanese service
-    alias_method :moon_age12, :moon_age   # Moon age (0-11) for Japanese service
-    attr_reader  :moon_age7               # Moon age (0-7)  for Non-Japanese service
-    attr_reader  :moon_percent            # Moon phase percentage
-    attr_reader  :time_of_moon            # Time after the moon
+    # @return [Bignum] the value of the time as microseconds since C.E. 0001-01-01 00:00:00
+    attr_reader :time
 
-    # Create current Vana'diel time
+    # @return [Fixnum] the year for time
+    attr_reader :year
+
+    # @return [Fixnum] the month of the year (1..12) for time
+    attr_reader  :month
+
+    # @return [Fixnum] the month of the year (1..12) for time
+    alias_method :mon, :month
+
+    # @return [Fixnum] the day of the month (1..30) for time
+    attr_reader  :mday
+    alias_method :day, :mday
+
+    # @return [Fixnum] the hour of the day (0..23) for time
+    attr_reader  :hour
+
+    # @return [Fixnum] the minute of the hour (0..59) for time
+    attr_reader  :min
+
+    # @return [Fixnum] the second of the minute (0..59) for time
+    attr_reader  :sec
+
+    # @return [Fixnum] just the number of microseconds (0..999999) for time
+    attr_reader  :usec
+
+    # @return [Fixnum] an integer representing the day of the week, 0..7, with Firesday == 0
+    attr_reader  :wday
+
+    # @return [Fixnum] an integer representing the day of the year (1..360)
+    attr_reader  :yday
+
+    # @return [Fixnum] an integer representing the moon age (0..11), for Japanese service
+    attr_reader  :moon_age
+    alias_method :moon_age12, :moon_age
+
+    # @return [Fixnum] an integer representing the moon age (0..7), for Non-Japanese service
+    attr_reader  :moon_age7
+
+    # @return [Fixnum] an integer representing the moon phase percentage (0..100), for Non-Japanese service
+    attr_reader  :moon_percent
+
+    # @return [Fixnum] the number of microseconds of the moon
+    attr_reader  :time_of_moon
+
+    # It is initialized to the current time if no argument.
+    # If one or more arguments specified, the time is initialized to the specified time.
+    #
+    # @overload new()
+    #   It is initialized to the current time if no argument.
+    # @overload new(year, mon = 1, day = 1, hour = 0, min = 0, sec = 0, usec = 0)
+    #   If one or more arguments specified, the time is initialized to the specified time.
+    #   @param [Integer] year the year part (1..n)
+    #   @param [Integer] mon the month part (1..12)
+    #   @param [Integer] day the day of month part (1..30)
+    #   @param [Integer] hour the hour part (0..23)
+    #   @param [Integer] min the minute part (0..59)
+    #   @param [Integer] sec the second part (0..59)
+    #   @param [Integer] usec the microsecond part (0..999999)
     def initialize(*args)
       self.time = args.empty? ? self.class.earth_to_vana(::Time.now.to_f * ONE_SECOND) : self.class.ymdhms_to_usec(*args)
     end
 
-    # Create current Vana'diel time
+    # Synonym for Vanadiel::Time.new. Returns a new time object initialized to the current time.
+    #
+    # @return [Vanadiel::Time] the time object initialized to the current time.
     def self.now
       self.new
     end
 
-    # Same as .new() but year is required
-    def self.mktime(*args)
-      raise ArgumentError, 'wrong number arguments' if args.empty?
+    # Same as Vanadiel::Time.new, but the year is required.
+    #
+    # @return [Vanadiel::Time] the time object initialized to the specified time.
+    def self.mktime(year, *rest_part)
+      args = [year, *rest_part]
       self.new(*args)
     end
 
-    # Create specified Vana'diel time
+    # Creates a new time object with the value given by time.
+    #
+    # @overload at(time)
+    #   @param [::Time, Vanadiel::Time] time the time object
+    #   @return [Vanadiel::Time] the time object initialized to the specified time.
+    # @overload at(seconds, usec = 0)
+    #   @param [Integer, Float] sec seconds from C.E. 0001-01-01 00:00:00
+    #   @param [Integer] usec the microseconds
+    #   @return [Vanadiel::Time] the time object initialized to the specified time.
     def self.at(time, usec = 0)
       obj = self.new
       if time.is_a? ::Time
@@ -101,23 +164,60 @@ module Vanadiel
       obj
     end
 
-    # Vana'diel time(usec) to Earth time(UNIX usec)
+    # Converts microseconds as Vana'diel time to microseconds as the Earth time from the Epoch.
+    #
+    # @param [Integer] vana_time microseconds as Vana'diel time
+    # @return [Integer] microseconds as the Earth time
     def self.vana_to_earth(vana_time)
        earth = (((vana_time + ONE_YEAR) / VANA_TIME_SCALE) - DIFF_TIME)
     end
 
-    # Earth time(UNIX usec) to Vana'diel time(usec)
+    # Converts microseconds as the Earth time to microseconds as Vana'diel time from the Epoch.
+    #
+    # @param [Integer] earth_time microseconds as the Earth time
+    # @return [Integer] microseconds as Vana'diel time
     def self.earth_to_vana(earth_time)
       (earth_time + DIFF_TIME) * VANA_TIME_SCALE - ONE_YEAR
     end
 
+    # Returns true if time represents Firesday.
+    #
+    # @return [Boolean] true if Firesday
     def firesday?;      @wday == Vanadiel::Day::FIRESDAY;      end
+
+    # Returns true if time represents Earthsday.
+    #
+    # @return [Boolean] true if Earthsday
     def earthsday?;     @wday == Vanadiel::Day::EARTHSDAY;     end
+
+    # Returns true if time represents Watersday.
+    #
+    # @return [Boolean] true if Watersday
     def watersday?;     @wday == Vanadiel::Day::WATERSDAY;     end
+
+    # Returns true if time represents Windsday.
+    #
+    # @return [Boolean] true if Windsday
     def windsday?;      @wday == Vanadiel::Day::WINDSDAY;      end
+
+    # Returns true if time represents Iceday.
+    #
+    # @return [Boolean] true if Iceday
     def iceday?;        @wday == Vanadiel::Day::ICEDAY;        end
+
+    # Returns true if time represents Lightningday.
+    #
+    # @return [Boolean] true if Lightningday
     def lightningday?;  @wday == Vanadiel::Day::LIGHTNINGDAY;  end
+
+    # Returns true if time represents Lightsday.
+    #
+    # @return [Boolean] true if Lightsday
     def lightsday?;     @wday == Vanadiel::Day::LIGHTSDAY;     end
+
+    # Returns true if time represents Darksday.
+    #
+    # @return [Boolean] true if Darksday
     def darksday?;      @wday == Vanadiel::Day::DARKSDAY;      end
 
     # Format Vana'diel time according to the directives in the format string.
@@ -186,6 +286,9 @@ module Vanadiel
     #     %X - Same as %T
     #     %R - 24-hour time (%H:%M)
     #     %T - 24-hour time (%H:%M:%S)
+    #
+    # @param [String] format the format string
+    # @return [String] formatted string
     def strftime(format)
       source = { 'Y' => @year,  'C' => @year / 100, 'y' => @year % 100,
                  'm' => @month, 'd' => @mday, 'e' => @mday, 'j' => @yday,
@@ -240,10 +343,25 @@ module Vanadiel
       }
     end
 
+    # Adds some number of seconds (possibly fractional) to time and returns that value as a new time.
+    #
+    # @param [Integer, Float] sec seconds
+    # @return [Vanadiel::Time] new time
     def +(sec)
       self.class.at((@time + (sec * ONE_SECOND)) / ONE_SECOND)
     end
 
+    # Returns a new time that represents the difference between two times,
+    # or subtracts the given number of seconds in numeric from time.
+    #
+    # @overload -(time)
+    #   Returns a new time that represents the difference between two times.
+    #   @param [::Time, Vanadiel::Time] other_time the other time object
+    #   @return [Float] seconds that represents the difference
+    # @overload -(seconds)
+    #   Subtracts the given number of seconds in numeric from time.
+    #   @param [Integer, Float] sec seconds
+    #   @return [Vanadiel::Time] new time
     def -(time)
       if time.is_a? ::Time
         (@time.to_f - self.class.earth_to_vana(time.to_f * ONE_SECOND)) / ONE_SECOND
@@ -256,31 +374,65 @@ module Vanadiel
       end
     end
 
-    def <=>(time)
-      @time <=> time.time
+    # Compares time with other time.
+    #
+    # @param [Vanadiel::Time] other_time the other time
+    # @return [-1] if the time is earlier than the other time.
+    # @return [0] if the time is same as the other time.
+    # @return [1] if the time is later than the other time.
+    # @return [nil] if it cannot compare.
+    def <=>(other_time)
+      @time <=> other_time.time
     end
 
+    # Returns the value of time as a floating point number of seconds since C.E. 0001-01-01 00:00:00.
+    #
+    # @return [Float] seconds
     def to_i
       @time / ONE_SECOND
     end
 
+    # Returns the value of time as an integer number of seconds since C.E. 0001-01-01 00:00:00.
+    #
+    # @return [Integer] seconds
     def to_f
       @time.to_f / ONE_SECOND
     end
 
+    # Returns a string representing time. Equivalent to calling #strftime with
+    # a format string of "%Y-%m-%d %H:%M:%S".
+    #
+    # @return [String] the string representing time
     def to_s
       self.strftime('%Y-%m-%d %H:%M:%S')
     end
 
+    # Returns the value of time as the Earth time object.
+    #
+    # @return [::Time] the Earth time object
     def to_earth_time
       ::Time.at(self.class.vana_to_earth(@time) / ONE_SECOND)
     end
 
+    # Returns a hash code for this time object.
+    #
+    # @return [Fixnum] the hash code
     def hash; @time.hash ^ self.class.hash; end
 
+    # Returns true if time and other time are the same time.
+    #
+    # @return [Boolean] true if same
     def ==(other);   @time == other.time;     end
+
+    # Returns true if time and other time are both Vanadiel::Time objects with the same time.
+    #
+    # @return [Boolean] true if same
     def eql?(other); self.hash == other.hash; end
 
+    # Manually sets the time and recompute all fields.
+    #
+    # @param [Integer] time an integer number of microseconds
+    # @note This accessor is used internally.
     def time=(time)
       @time = time
       compute_fields
@@ -294,6 +446,16 @@ module Vanadiel
       self.time = obj
     end
 
+    # Converts to the value of time as an integer number of microseconds since C.E. 0001-01-01 00:00:00.
+    #
+    # @param [Integer] year the year part (1..n)
+    # @param [Integer] mon the month part (1..12)
+    # @param [Integer] day the day of month part (1..30)
+    # @param [Integer] hour the hour part (0..23)
+    # @param [Integer] min the minute part (0..59)
+    # @param [Integer] sec the second part (0..59)
+    # @param [Integer] usec the microsecond part (0..999999)
+    # @return [Integer] microseconds as Vana'diel time
     def self.ymdhms_to_usec(year, mon = 1, day = 1, hour = 0, min = 0, sec = 0, usec = 0)
       raise ArgumentError, 'year out of range' if year < 0
       raise ArgumentError, 'mon out of range'  if mon  < 1 || mon > 12
@@ -307,6 +469,7 @@ module Vanadiel
 
     private
 
+    # Computes fields by its value of time.
     def compute_fields
       @year         = (@time / ONE_YEAR).floor + 1
       @month        = (@time % ONE_YEAR / ONE_MONTH).floor + 1
@@ -319,6 +482,8 @@ module Vanadiel
       @wday         = (@time % ONE_WEEK / ONE_DAY).floor
       @yday         = ((@month - 1) * 30) + @mday
 
+      # MOON_BASE_TIME  = 0 - (ONE_DAY * 12) # Start of New moon (10%)
+      #
       # moon_time     = @time - MOON_BASE_TIME
       # @moon_age     = (moon_time / ONE_DAY / 7 % (MAX_MOON_AGE + 1)).floor
       # @time_of_moon = ((moon_time / ONE_DAY % 7) * ONE_DAY).floor

@@ -1,4 +1,5 @@
 Gemfile.lock
 doc/
+.yardoc/
 pkg/
 vendor/cache/*.gem

@@ -7,7 +7,7 @@ Gem::Specification.new do |gem|
   gem.name          = "vanadiel-time"
   gem.version       = Vanadiel::Time::VERSION
   gem.summary       = %q{A library for dealing with Vana'diel time from Final Fantasy XI}
-  gem.description   = %q{Converting between realtime and vana'diel time, and so on.}
+  gem.description   = %q{Converting between realtime and Vana'diel time, and so on.}
   gem.license       = "MIT"
   gem.authors       = ["Yuki"]
   gem.email         = "paselan@gmail.com"

@@ -656,12 +656,12 @@ describe Vanadiel::Time, '#-' do
 end
 
 describe Vanadiel::Time, '#<=>' do
-  context 'with greater time' do
+  context 'with later(greater) time' do
     subject { described_class.new(2047, 10, 21) <=> described_class.new(2047, 10, 22) }
     it { should == -1 }
   end
 
-  context 'with less time' do
+  context 'with earlier(less) time' do
     subject { described_class.new(2047, 10, 21) <=> described_class.new(2047, 10, 20) }
     it { should == 1 }
   end
