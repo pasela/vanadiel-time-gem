@@ -8,40 +8,41 @@ module Vanadiel
   # Time is stored internally as the number of microseconds since C.E. 0001-01-01 00:00:00.
   #
   # Vana'diel time spec:
-  #   One year   = 12 months = 360 days
-  #   One month  = 30 days
-  #   One day    = 24 hours
-  #   One hour   = 60 minutes
-  #   One minute = 60 seconds
-  #   One second = 0.04 seconds of the earth's (1/25th of a second)
   #
-  #   Vana'diel second         = 0.04 earth seconds (1/25th of a second)
-  #   Vana'diel minute         = 2.4 earth seconds
-  #   Vana'diel hour           = 2 minutes 24 earth seconds
-  #   Vana'diel day            = 57 minutes 36 earth seconds
-  #   Vana'diel week           = 7 hours 40 minutes 48 earth seconds
-  #   Vana'diel calendar month = 1 day 4 hours 48 earth minutes
-  #   Vana'diel lunar month    = 3 days 14 hours 24 earth minutes
-  #   Vana'diel year           = 14 days 9 hours 36 earth minutes
+  #     One year   = 12 months = 360 days
+  #     One month  = 30 days
+  #     One day    = 24 hours
+  #     One hour   = 60 minutes
+  #     One minute = 60 seconds
+  #     One second = 0.04 seconds of the earth's (1/25th of a second)
   #
-  #   Each full lunar cycle lasts for 84 Vana'diel days.
-  #   Vana'diel has 12 distinct moon phases.
-  #   Japanese client expresses moon phases by 12 kinds of texts. (percentage is not displayed in Japanese client)
-  #   Non-Japanese client expresses moon phases by 7 kinds of texts and percentage.
+  #     Vana'diel second         = 0.04 earth seconds (1/25th of a second)
+  #     Vana'diel minute         = 2.4 earth seconds
+  #     Vana'diel hour           = 2 minutes 24 earth seconds
+  #     Vana'diel day            = 57 minutes 36 earth seconds
+  #     Vana'diel week           = 7 hours 40 minutes 48 earth seconds
+  #     Vana'diel calendar month = 1 day 4 hours 48 earth minutes
+  #     Vana'diel lunar month    = 3 days 14 hours 24 earth minutes
+  #     Vana'diel year           = 14 days 9 hours 36 earth minutes
+  #
+  #     Each full lunar cycle lasts for 84 Vana'diel days.
+  #     Vana'diel has 12 distinct moon phases.
+  #     Japanese client expresses moon phases by 12 kinds of texts. (percentage is not displayed in Japanese client)
+  #     Non-Japanese client expresses moon phases by 7 kinds of texts and percentage.
   #
   # C.E. = Crystal Era
   #
-  #   A.D. -91270800 => 1967/02/10 00:00:00 +0900
-  #   C.E. 0         => 0001/01/01 00:00:00
+  #     A.D. -91270800 => 1967/02/10 00:00:00 +0900
+  #     C.E. 0         => 0001/01/01 00:00:00
   #
-  #   A.D. 2002/01/01(Tue) 00:00:00 JST
-  #   C.E. 0886/01/01(Fir) 00:00:00
+  #     A.D. 2002/01/01(Tue) 00:00:00 JST
+  #     C.E. 0886/01/01(Fir) 00:00:00
   #
-  #   A.D. 2047/10/22(Tue) 01:00:00 JST
-  #   C.E. 2047/10/22(Wat) 01:00:00
+  #     A.D. 2047/10/22(Tue) 01:00:00 JST
+  #     C.E. 2047/10/22(Wat) 01:00:00
   #
-  #   A.D. 2047/10/21(Mon) 15:37:30 UTC
-  #   C.E. 2047/10/21(Win) 15:37:30
+  #     A.D. 2047/10/21(Mon) 15:37:30 UTC
+  #     C.E. 2047/10/21(Win) 15:37:30
   class Time
     # vanadiel-time version
     VERSION = "0.1.0"
@@ -227,65 +228,67 @@ module Vanadiel
     # The directive consists of a percent (%) character, zero or more flags,
     # optional minimum field width and a conversion specifier as follows.
     #
-    #   %<flags><width><conversion>
+    #     %<flags><width><conversion>
     #
     # Flags:
-    #   -  don't pad a numerical output.
-    #   _  use spaces for padding.
-    #   0  use zeros for padding.
-    #   ^  upcase the result string.
-    #   #  change case.
+    #
+    #     -  don't pad a numerical output.
+    #     _  use spaces for padding.
+    #     0  use zeros for padding.
+    #     ^  upcase the result string.
+    #     #  change case.
     #
     # The minimum field width specifies the minimum width.
     #
     # Format directives:
-    #   Date (Year, Month, Day):
-    #     %Y - Year with century (can be negative)
-    #             -0001, 0000, 1995, 2009, 14292, etc.
-    #     %C - year / 100 (round down.  20 in 2009)
-    #     %y - year % 100 (00..99)
     #
-    #     %m - Month of the year, zero-padded (01..12)
-    #             %_m  blank-padded ( 1..12)
-    #             %-m  no-padded (1..12)
+    #     Date (Year, Month, Day):
+    #       %Y - Year with century (can be negative)
+    #               -0001, 0000, 1995, 2009, 14292, etc.
+    #       %C - year / 100 (round down.  20 in 2009)
+    #       %y - year % 100 (00..99)
     #
-    #     %d - Day of the month, zero-padded (01..30)
-    #             %-d  no-padded (1..30)
-    #     %e - Day of the month, blank-padded ( 1..30)
+    #       %m - Month of the year, zero-padded (01..12)
+    #               %_m  blank-padded ( 1..12)
+    #               %-m  no-padded (1..12)
     #
-    #     %j - Day of the year (001..360)
+    #       %d - Day of the month, zero-padded (01..30)
+    #               %-d  no-padded (1..30)
+    #       %e - Day of the month, blank-padded ( 1..30)
     #
-    #   Time (Hour, Minute, Second, Subsecond):
-    #     %H - Hour of the day, 24-hour clock, zero-padded (00..23)
-    #     %k - Hour of the day, 24-hour clock, blank-padded ( 0..23)
+    #       %j - Day of the year (001..360)
     #
-    #     %M - Minute of the hour (00..59)
+    #     Time (Hour, Minute, Second, Subsecond):
+    #       %H - Hour of the day, 24-hour clock, zero-padded (00..23)
+    #       %k - Hour of the day, 24-hour clock, blank-padded ( 0..23)
     #
-    #     %S - Second of the minute (00..59)
+    #       %M - Minute of the hour (00..59)
     #
-    #     %L - Millisecond of the second (000..999)
-    #     %N - Fractional seconds digits, default is 6 digits (microsecond)
-    #             %3N  millisecond (3 digits)
-    #             %6N  microsecond (6 digits)
+    #       %S - Second of the minute (00..59)
     #
-    #   Weekday:
-    #     %A - The full weekday name (``Firesday'')
-    #             %^A  uppercased (``FIRESDAY'')
-    #     %w - Day of the week (Firesday is 0, 0..7)
+    #       %L - Millisecond of the second (000..999)
+    #       %N - Fractional seconds digits, default is 6 digits (microsecond)
+    #               %3N  millisecond (3 digits)
+    #               %6N  microsecond (6 digits)
     #
-    #   Seconds since the Epoch:
-    #     %s - Number of seconds since 0001-01-01 00:00:00
+    #     Weekday:
+    #       %A - The full weekday name (``Firesday'')
+    #               %^A  uppercased (``FIRESDAY'')
+    #       %w - Day of the week (Firesday is 0, 0..7)
     #
-    #   Literal string:
-    #     %n - Newline character (\n)
-    #     %t - Tab character (\t)
-    #     %% - Literal ``%'' character
+    #     Seconds since the Epoch:
+    #       %s - Number of seconds since 0001-01-01 00:00:00
     #
-    #   Combination:
-    #     %F - The ISO 8601 date format (%Y-%m-%d)
-    #     %X - Same as %T
-    #     %R - 24-hour time (%H:%M)
-    #     %T - 24-hour time (%H:%M:%S)
+    #     Literal string:
+    #       %n - Newline character (\n)
+    #       %t - Tab character (\t)
+    #       %% - Literal ``%'' character
+    #
+    #     Combination:
+    #       %F - The ISO 8601 date format (%Y-%m-%d)
+    #       %X - Same as %T
+    #       %R - 24-hour time (%H:%M)
+    #       %T - 24-hour time (%H:%M:%S)
     #
     # @param [String] format the format string
     # @return [String] formatted string
