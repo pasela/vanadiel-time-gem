@@ -589,16 +589,6 @@ describe Vanadiel::Time, '#strftime' do
   end
 end
 
-describe Vanadiel::Time, '#==' do
-  context 'with same value different object' do
-    let(:other) { described_class.new(2047, 10, 21) }
-    subject     { described_class.new(2047, 10, 21) }
-    it 'should be true' do
-      should == other
-    end
-  end
-end
-
 describe Vanadiel::Time, '#eql?' do
   context 'with same value different object' do
     let(:other) { described_class.new(2047, 10, 21) }

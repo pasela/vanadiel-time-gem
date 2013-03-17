@@ -44,6 +44,8 @@ module Vanadiel
   #     A.D. 2047/10/21(Mon) 15:37:30 UTC
   #     C.E. 2047/10/21(Win) 15:37:30
   class Time
+    include Comparable
+
     # vanadiel-time version
     VERSION = "0.1.0"
 
@@ -421,11 +423,6 @@ module Vanadiel
     #
     # @return [Fixnum] the hash code
     def hash; @time.hash ^ self.class.hash; end
-
-    # Returns true if time and other time are the same time.
-    #
-    # @return [Boolean] true if same
-    def ==(other);   @time == other.time;     end
 
     # Returns true if time and other time are both Vanadiel::Time objects with the same time.
     #
