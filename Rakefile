@@ -20,15 +20,14 @@ end
 
 require 'rake'
 
-require 'rubygems/tasks'
-Gem::Tasks.new
-
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new
 
 task :test    => :spec
 task :default => :spec
 
+require 'bundler/gem_tasks'
+
 require 'yard'
-YARD::Rake::YardocTask.new  
+YARD::Rake::YardocTask.new
 task :doc => :yard
