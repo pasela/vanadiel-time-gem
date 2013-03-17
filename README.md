@@ -42,6 +42,6 @@ output:
 
 ## Copyright
 
-Copyright (c) 2012 Yuki
+Copyright (c) 2013 Yuki, a.k.a. Pasela
 
 See {file:LICENSE.txt} for details.

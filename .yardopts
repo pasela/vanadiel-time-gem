@@ -1,1 +1,8 @@
---markup markdown --title "vanadiel-time Documentation" --protected
+--markup markdown
+--title "vanadiel-time Documentation"
+--protected
+--no-private
+-
+README.md
+LICENSE.txt
+ChangeLog.md
