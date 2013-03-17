@@ -170,7 +170,7 @@ module Vanadiel
     # @param [Integer] vana_time microseconds as Vana'diel time
     # @return [Integer] microseconds as the Earth time
     def self.vana_to_earth(vana_time)
-       earth = (((vana_time + ONE_YEAR) / VANA_TIME_SCALE) - DIFF_TIME)
+       (((vana_time + ONE_YEAR) / VANA_TIME_SCALE) - DIFF_TIME)
     end
 
     # Converts microseconds as the Earth time to microseconds as Vana'diel time from the Epoch.
