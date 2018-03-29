@@ -47,7 +47,7 @@ module Vanadiel
     include Comparable
 
     # vanadiel-time version
-    VERSION = "0.2.0"
+    VERSION = "0.2.1"
 
     ONE_SECOND = 1000000
     ONE_MINUTE = 60  * ONE_SECOND

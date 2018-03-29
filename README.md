@@ -3,7 +3,7 @@
 * [Homepage](https://github.com/pasela/vanadiel-time-gem)
 * [Issues](https://github.com/pasela/vanadiel-time-gem/issues)
 * [Documentation](http://rubydoc.info/gems/vanadiel-time/frames)
-* [Email](mailto:paselan at gmail.com )
+* [Email](mailto:paselan at gmail.com)
 
 ## Description
 
@@ -42,6 +42,6 @@ output:
 
 ## Copyright
 
-Copyright (c) 2013 Yuki, a.k.a. Pasela
+Copyright (c) 2018 Yuki, a.k.a. Pasela
 
-See {file:LICENSE.txt} for details.
+See [LICENSE](/LICENSE.txt) for details.

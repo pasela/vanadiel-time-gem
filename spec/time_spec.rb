@@ -26,10 +26,10 @@ describe Vanadiel::Time, '.vana_to_earth' do
   end
 end
 
-share_examples_for 'Vanadiel::Time with no argument' do
+shared_examples_for 'Vanadiel::Time with no argument' do
   before do
     @time_now = Time.local(2002, 1, 1, 12, 34, 56)
-    Time.stub!(:now).and_return(@time_now)
+    allow(Time).to receive(:now).and_return(@time_now)
   end
 
   it "should create current time object" do
@@ -173,7 +173,7 @@ describe Vanadiel::Time, '.at' do
 end
 
 describe 'Vanadiel::Time properties' do
-  share_examples_for "time object which has each part property" do
+  shared_examples_for "time object which has each part property" do
     its(:year)         { should == @year         }
     its(:month)        { should == @mon          }
     its(:mon)          { should == @mon          }
